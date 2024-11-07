@@ -11,7 +11,7 @@ from sklearn.cluster import KMeans
 #from pycave.bayes import GMM
 from sklearn.mixture import GaussianMixture as GMM
 from torch.nn.modules.linear import Linear
-from torchmeta.modules import MetaLinear, MetaSequential, MetaModule
+# from torchmeta.modules import MetaLinear, MetaSequential, MetaModule
 from transformers import AutoModelForMaskedLM
 from tqdm import tqdm
 import random as rd
@@ -251,7 +251,7 @@ class lm_ot(torch.nn.Module):
             if self.topics[i].requires_grad == True:
                 self.topics[i].requires_grad = False
 
-class LInEx(MetaModule):
+class LInEx(nn.Module):
     def __init__(self, input_dim: int, hidden_dim: int, max_slots: int, init_slots: int,dropout_type="adap", p:int=0.1, 
                  device: Union[torch.device, None] = None, **kwargs) -> None:
         super().__init__()
@@ -260,24 +260,24 @@ class LInEx(MetaModule):
             if dropout_type != "normal":
                 self.is_adap = True if dropout_type == "adap" else False
                 self.input_map = CustomMetaSequential(OrderedDict({
-                    "linear_0": MetaLinear(input_dim, hidden_dim),
+                    "linear_0": nn.Linear(input_dim, hidden_dim),
                     "relu_0": nn.ReLU(),
                     "dropout_0": dropout(hidden_dim, device=device, p=p, fixed=True if dropout_type != "adap" else False),
-                    "linear_1": MetaLinear(hidden_dim, hidden_dim),
+                    "linear_1": nn.Linear(hidden_dim, hidden_dim),
                     "relu_1": nn.ReLU(),
                 }))
             else:
                 self.is_adap = False
                 self.input_map = CustomMetaSequential(OrderedDict({
-                    "linear_0": MetaLinear(input_dim, hidden_dim),
+                    "linear_0": nn.Linear(input_dim, hidden_dim),
                     "relu_0": nn.ReLU(),
                     "dropout_0": nn.Dropout(p),
-                    "linear_1": MetaLinear(hidden_dim, hidden_dim),
+                    "linear_1": nn.Linear(hidden_dim, hidden_dim),
                     "relu_1": nn.ReLU(),
                 }))
         else:
             self.input_map = lambda x: x
-        self.classes = MetaLinear(hidden_dim, max_slots, bias=False)
+        self.classes = nn.Linear(hidden_dim, max_slots, bias=False)
         self.lm_head = lm_ot(max_slots, self.classes, device)
         self.lm_mode = "ot"
         for param in self.lm_head.model.parameters():
