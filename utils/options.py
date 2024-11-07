@@ -72,7 +72,7 @@ import glob
 class Config:
     def __init__(
         self,
-        json_root="/kaggle/working/sharpseq/data",
+        json_root="/kaggle/working",
         feature_root="/kaggle/working/features",
         stream_file="/kaggle/working/sharpseq/data/MAVEN/streams.json",
         batch_size=32,
