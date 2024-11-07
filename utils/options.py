@@ -93,7 +93,7 @@ class Config:
         seed=2147483647,
         save_model="model",
         load_model="",
-        log_dir="./log/",
+        log_dir="/kaggle/working/log",
         train_epoch=50,
         test_only=False,
         kt=False,
