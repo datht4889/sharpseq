@@ -27,16 +27,17 @@ from utils.options import parse_arguments
 
 opts = parse_arguments()
 opts.lm_temp = 2
-class CustomMetaSequential(nn.Sequential, MetaModule):
+class CustomMetaSequential(nn.Sequential, nn.Module):
     __doc__ = nn.Sequential.__doc__
 
     def forward(self, input, params=None, return_all_layer=False):
         hidden = []
         for name, module in self._modules.items():
-            if isinstance(module, MetaModule):
-                input = module(input, params=self.get_subdict(params, name))
-            elif isinstance(module, nn.Module):
+            if isinstance(module, nn.Module):
+                # input = module(input, params=self.get_subdict(params, name))
                 input = module(input)
+            # elif isinstance(module, nn.Module):
+            #     input = module(input)
             else:
                 raise TypeError('The module must be either a torch module '
                                 '(inheriting from `nn.Module`), or a `MetaModule`. '
