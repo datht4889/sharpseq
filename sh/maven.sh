@@ -14,9 +14,9 @@ do
     fi
 
     touch ${log_p}/perm_${i}/exp.log
-    cp -r models/nets.py ${log_p}/perm_${i}/
-    cp -r utils/datastream.py ${log_p}/perm_${i}/
-    cp -r utils/worker.py ${log_p}/perm_${i}/
+    cp -r /kaggle/working/sharpseq/models/nets.py ${log_p}/perm_${i}/
+    cp -r /kaggle/working/sharpseq/utils/datastream.py ${log_p}/perm_${i}/
+    cp -r /kaggle/working/sharpseq/utils/worker.py ${log_p}/perm_${i}/
 
     python run_train.py --log-dir "${log_p}/perm_${i}"  --perm-id ${i} --dropout "normal" --p 0.2 --mul_distill --kt --kt2 --train-epoch 15 --patience 5  --generate  --batch-size 128 --mode herding --clusters 4 --mul_task --num_sam_loss 2 > ${log_p}/perm_${i}/exp.log
 
