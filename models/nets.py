@@ -11,7 +11,7 @@ from sklearn.cluster import KMeans
 #from pycave.bayes import GMM
 from sklearn.mixture import GaussianMixture as GMM
 from torch.nn.modules.linear import Linear
-from utils.torchmeta_modules import MetaLinear, MetaModule
+from utils.torchmeta_modules import MetaLinear, MetaSequential, MetaModule
 from transformers import AutoModelForMaskedLM
 from tqdm import tqdm
 import random as rd
@@ -27,17 +27,16 @@ from utils.options import parse_arguments
 
 opts = parse_arguments()
 opts.lm_temp = 2
-class CustomMetaSequential(nn.Sequential, nn.Module):
+class CustomMetaSequential(nn.Sequential, MetaModule):
     __doc__ = nn.Sequential.__doc__
 
     def forward(self, input, params=None, return_all_layer=False):
         hidden = []
         for name, module in self._modules.items():
-            if isinstance(module, nn.Module):
-                # input = module(input, params=self.get_subdict(params, name))
+            if isinstance(module, MetaModule):
+                input = module(input, params=self.get_subdict(params, name))
+            elif isinstance(module, nn.Module):
                 input = module(input)
-            # elif isinstance(module, nn.Module):
-            #     input = module(input)
             else:
                 raise TypeError('The module must be either a torch module '
                                 '(inheriting from `nn.Module`), or a `MetaModule`. '
@@ -176,7 +175,7 @@ class lm_ot(torch.nn.Module):
         self.topics = torch.nn.ParameterList([torch.nn.Parameter(torch.nn.init.normal_(torch.empty(1,hidden_size), 0, 0.01)) for i in range(max_slots-1)])
         self.to(device)
         self.device = device
-        with open("/kaggle/working/sharpseq/verb.json") as f:
+        with open("verb.json") as f:
             self.verbs = json.load(f)
         self.non_verbs = [i for i in range(vocab_size) if i not in self.verbs]
     
@@ -261,24 +260,24 @@ class LInEx(MetaModule):
             if dropout_type != "normal":
                 self.is_adap = True if dropout_type == "adap" else False
                 self.input_map = CustomMetaSequential(OrderedDict({
-                    "linear_0": nn.Linear(input_dim, hidden_dim),
+                    "linear_0": MetaLinear(input_dim, hidden_dim),
                     "relu_0": nn.ReLU(),
                     "dropout_0": dropout(hidden_dim, device=device, p=p, fixed=True if dropout_type != "adap" else False),
-                    "linear_1": nn.Linear(hidden_dim, hidden_dim),
+                    "linear_1": MetaLinear(hidden_dim, hidden_dim),
                     "relu_1": nn.ReLU(),
                 }))
             else:
                 self.is_adap = False
                 self.input_map = CustomMetaSequential(OrderedDict({
-                    "linear_0": nn.Linear(input_dim, hidden_dim),
+                    "linear_0": MetaLinear(input_dim, hidden_dim),
                     "relu_0": nn.ReLU(),
                     "dropout_0": nn.Dropout(p),
-                    "linear_1": nn.Linear(hidden_dim, hidden_dim),
+                    "linear_1": MetaLinear(hidden_dim, hidden_dim),
                     "relu_1": nn.ReLU(),
                 }))
         else:
             self.input_map = lambda x: x
-        self.classes = nn.Linear(hidden_dim, max_slots, bias=False)
+        self.classes = MetaLinear(hidden_dim, max_slots, bias=False)
         self.lm_head = lm_ot(max_slots, self.classes, device)
         self.lm_mode = "ot"
         for param in self.lm_head.model.parameters():
@@ -306,7 +305,7 @@ class LInEx(MetaModule):
         self.trained_replay = set()
         self.trained_generate = set()
         #self.alpha = torch.nn.Parameter(torch.normal(torch.zeros(input_dim), torch.ones(input_dim)*-1)).to(self.device)
-        with open("/kaggle/working/MAVEN/streams.json") as f:
+        with open("data/MAVEN/streams.json") as f:
             task2id = json.load(f)
             id2task = {}
             start = 1
