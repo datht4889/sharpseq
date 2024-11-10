@@ -273,7 +273,8 @@ def get_stage_loaders(root:str,
     dataset_id = 0 if "dataset" not in kwargs else kwargs['dataset']
     all_features = {}
     if opts.datasetname == "MAVEN":
-        out = h5py.File(os.path.join(root, "features/data.h5"), "r")
+        # out = h5py.File(os.path.join(root, "features/data.h5"), "r")
+        out = h5py.File("/kaggle/input/sharpseq-features/features/data.h5", "r")
     else:
         out = h5py.File(os.path.join(root, "ace_features/data.h5"), "r")
     print(opts.datasetname == "MAVEN")
