@@ -73,7 +73,8 @@ class Config:
     def __init__(
         self,
         json_root="/kaggle/working",
-        feature_root="/kaggle/working/features",
+        # feature_root="/kaggle/working/features",
+        feature_root="/kaggle/input/sharpseq-features",
         stream_file="/kaggle/working/sharpseq/data/MAVEN/streams.json",
         batch_size=32,
         init_slots=13,
