@@ -252,7 +252,7 @@ class lm_ot(torch.nn.Module):
             if self.topics[i].requires_grad == True:
                 self.topics[i].requires_grad = False
 
-class LInEx(nn.Module):
+class LInEx(MetaModule):
     def __init__(self, input_dim: int, hidden_dim: int, max_slots: int, init_slots: int,dropout_type="adap", p:int=0.1, 
                  device: Union[torch.device, None] = None, **kwargs) -> None:
         super().__init__()
