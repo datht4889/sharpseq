@@ -76,7 +76,7 @@ def main():
             num_workers=0,
             dataset=dataset_id)
     else:
-        sis = json.load(open("data/MAVEN/stream_instances_2227341903.json"))
+        sis = json.load(open("/kaggle/working/sharpseq/data/MAVEN/stream_instances_2227341903.json"))
         if perm_id <= 3:
             print(f"running perm {perm_id}")
             sis = [sis[t] for t in PERM[perm_id]]
@@ -243,7 +243,7 @@ def main():
                 for label in indices.keys():
                     if label != 0:
                         frequency[label] = indices[label][1] - indices[label][0]
-            with open("data/MAVEN/label2id.json") as fp:
+            with open("/kaggle/working/sharpseq/data/MAVEN/label2id.json") as fp:
                 name2label = json.load(fp)
                 label2name = {v:k for k,v in name2label.items()}
             id2label = {v:k for k,v in label2id.items()}
@@ -264,7 +264,7 @@ def main():
                 # if opts.debug:
                 #     import pdb
                 #     pdb.set_trace()
-                torch.save(test_outputs, f"log/{os.path.basename(opts.load_model)}.output")
+                torch.save(test_outputs, f"/kaggle/working/log/{os.path.basename(opts.load_model)}.output")
                 test_scores, (test_p, test_r, test_f) = by_class(test_outputs["prediction"], test_outputs["label"], learned_labels=learned_labels)
                 test_class_f1 = {k: test_scores[k][2] for k in test_scores}
                 for k,v in test_class_f1.items():
@@ -283,7 +283,7 @@ def main():
 
             print(f"patience: {no_better} / {patience}")
             try:
-                with open("log/alpha.txt", "a+") as f:
+                with open("/kaggle/working/log/alpha.txt", "a+") as f:
                     f.write(torch.exp(model.input_map[3].log_alpha).__str__())
                     f.write("\n")
             except:
