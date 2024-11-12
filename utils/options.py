@@ -93,7 +93,7 @@ class Config:
         kt_delta=0.5,
         seed=2147483647,
         save_model="model",
-        load_model="",
+        load_model="/kaggle/working/checkpoint",
         log_dir="/kaggle/working/log",
         train_epoch=50,
         test_only=False,
