@@ -175,6 +175,7 @@ def main():
                 elif opts.balance == "mul":
                     train_loss = lambda batch: model.forward(batch, exemplar=True, mul_distill=True, exemplar_distill=True, distill=True, tau=0.5)
                 else:
+                    print("YESSSS")
                     train_loss = lambda batch: model.forward(batch, contrastive=opts.contrastive, return_loss_list=opts.mul_task, generate=opts.generate, sample_size=opts.sample_size,
                                                             exemplar=True, exemplar_distill=True, distill=True, tau=0.5,
                                                             feature_distill=opts.features_distill, hyer_distill=opts.hyer_distill, mul_distill=opts.mul_distill,
