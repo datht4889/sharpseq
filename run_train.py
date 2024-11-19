@@ -264,7 +264,8 @@ def main():
                 # if opts.debug:
                 #     import pdb
                 #     pdb.set_trace()
-                torch.save(test_outputs, f"/kaggle/working/log/{os.path.basename(opts.load_model)}.output")
+                # torch.save(test_outputs, f"/kaggle/working/log/{os.path.basename(opts.load_model)}.output")
+                torch.save(test_outputs, f"/kaggle/working/log/test_outputs.output")
                 test_scores, (test_p, test_r, test_f) = by_class(test_outputs["prediction"], test_outputs["label"], learned_labels=learned_labels)
                 test_class_f1 = {k: test_scores[k][2] for k in test_scores}
                 for k,v in test_class_f1.items():
