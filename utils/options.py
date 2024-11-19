@@ -3,9 +3,9 @@ import os
 import glob
 
 def define_arguments(parser):
-    parser.add_argument('--json-root', type=str, default="./data", help="")
-    parser.add_argument('--feature-root', type=str, default="data/features", help="")
-    parser.add_argument('--stream-file', type=str, default="data/MAVEN/streams.json", help="")
+    parser.add_argument('--json-root', type=str, default="/kaggle/working", help="")
+    parser.add_argument('--feature-root', type=str, default="/kaggle/input/sharpseq-features", help="")
+    parser.add_argument('--stream-file', type=str, default="/kaggle/working/sharpseq/data/MAVEN/streams.json", help="")
     parser.add_argument('--batch-size', type=int, default=32, help="")
     parser.add_argument('--init-slots', type=int, default=13, help="")
     parser.add_argument('--patience', type=int, default=10, help="")
@@ -78,7 +78,7 @@ def define_arguments(parser):
 #         stream_file="/kaggle/working/sharpseq/data/MAVEN/streams.json",
 #         batch_size=128,
 #         init_slots=13,
-#         patience=10,
+#         patience=5,
 #         input_dim=2048,
 #         hidden_dim=512,
 #         max_slots=169,
@@ -97,8 +97,8 @@ def define_arguments(parser):
 #         log_dir="/kaggle/working/log",
 #         train_epoch=15,
 #         test_only=False,
-#         kt=False,
-#         kt2=False,
+#         kt=True,
+#         kt2=True,
 #         finetune=False,
 #         load_first="",
 #         skip_first=False,
@@ -109,16 +109,16 @@ def define_arguments(parser):
 #         mode="herding",
 #         kt_mode="herding",
 #         clusters=4,
-#         generate=False,
+#         generate=True,
 #         sample_size=2,
 #         features_distill=False,
 #         hyer_distill=False,
 #         reduce_na=False,
 #         new_test_mode=False,
 #         num_loss=4,
-#         mul_task=False,
+#         mul_task=True,
 #         contrastive=False,
-#         mul_distill=False,
+#         mul_distill=True,
 #         mul_task_type="NashMTL",
 #         naive_replay=False,
 #         debug=False,
