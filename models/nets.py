@@ -724,7 +724,6 @@ class LInEx(MetaModule):
                         else:
                             idx = self.sample_data(labels, trained=set(), k=1)
                         loss_list.insert(0, self.contrastive_loss(inputs[idx, :], labels[idx]))
-                print("loss_list:", loss_list)
                 return loss_list
             if contrastive == True:
                 inputs = torch.cat(all_inputs, dim=0)
