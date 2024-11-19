@@ -175,7 +175,6 @@ def main():
                 elif opts.balance == "mul":
                     train_loss = lambda batch: model.forward(batch, exemplar=True, mul_distill=True, exemplar_distill=True, distill=True, tau=0.5)
                 else:
-                    print("YESSSS")
                     train_loss = lambda batch: model.forward(batch, contrastive=opts.contrastive, return_loss_list=opts.mul_task, generate=opts.generate, sample_size=opts.sample_size,
                                                             exemplar=True, exemplar_distill=True, distill=True, tau=0.5,
                                                             feature_distill=opts.features_distill, hyer_distill=opts.hyer_distill, mul_distill=opts.mul_distill,
@@ -302,6 +301,7 @@ def main():
                     print("setting train exemplar for learned classes")
                     #model.set_clusters(exemplar_loaders[loader_id-1])
                     model.set_exemplar(exemplar_loaders[loader_id-1], generate_ratio=opts.generate_ratio, generate=opts.generate, center_ratio=opts.center_ratio, mode=opts.mode, num_clusters=opts.clusters)
+                    print("SET EXAMPLAR")
                 model.set_class()
                 model.lm_head.expand(model.nslots)
 
@@ -388,6 +388,7 @@ def main():
                     best_dev = dev_metrics; best_test = test_metrics
                 if not opts.finetune:
                     model.set_history()
+                    print("SET HISTORY")
                 for output_log in [print, worker._log]:
                     output_log(f"BEST DEV {loader_id-1}: {best_dev if best_dev is not None else 0}")
                     output_log(f"BEST TEST {loader_id-1}: {best_test if best_test is not None else 0}")
