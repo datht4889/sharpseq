@@ -211,6 +211,7 @@ class Worker(object):
                             loss.backward()
                         
                     else:
+                        print("LENGTH LOSS",len(loss))
                         if opts.debug:
                             import time
                             st_time = time.time()
