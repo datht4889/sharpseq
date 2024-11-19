@@ -482,14 +482,19 @@ class LInEx(MetaModule):
             loss = 0
             loss += 0.2*self.class_loss()
             loss += 0.2*self.lm_head(features, inputs, self.nslots)
+            
+            loss_ed = 0
             if len(plabels) > 0:
                 loss1 = self.crit(scores[plabels, :], labels[plabels])
                 #loss_list.append(loss1*5)
-                loss += loss1*balance_na*len(plabels)/(len(plabels)*balance_na + len(nlabels))
+                loss_ed += loss1*balance_na*len(plabels)/(len(plabels)*balance_na + len(nlabels))
             if len(nlabels) > 0:
                 loss2 = self.crit(scores[nlabels, :], labels[nlabels])
                 #loss_list.append(loss2)
-                loss += loss2*len(nlabels)/(len(plabels)*balance_na + len(nlabels))
+                loss_ed += loss2*len(nlabels)/(len(plabels)*balance_na + len(nlabels))
+
+            loss += loss_ed # L_ed cross entropy loss with regurlarization
+
             rate = 128/self.loader_length
             try:
                 loss_list.append((loss+lambda_coef*self.compute_KL_bernoulli(self.input_map[2].log_alpha)*rate)
@@ -557,7 +562,7 @@ class LInEx(MetaModule):
                 loss_list.append(loss_distill)
                 d_weight = self.history["nslots"]
                 c_weight = (self.nslots - self.history["nslots"])
-                loss = (d_weight * loss_distill + c_weight * loss) / (d_weight + c_weight)
+                loss = (d_weight * loss_distill + c_weight * loss) / (d_weight + c_weight) # L_d 
                 if torch.isnan(loss):
                     print(old_scores, new_scores)
                     input()
@@ -705,7 +710,7 @@ class LInEx(MetaModule):
                     loss_exemplar = (d_weight * loss_exemplar_distill + c_weight * loss_exemplar) / (
                                 d_weight + c_weight)
                 e_weight = exemplar_features.size(0)
-                loss = (nvalid * loss + e_weight * loss_exemplar) / (nvalid + e_weight)
+                loss = (nvalid * loss + e_weight * loss_exemplar) / (nvalid + e_weight) # L_r
                 if torch.isnan(loss):
                     print(loss, loss_exemplar)
             if return_loss_list == True:
@@ -719,6 +724,7 @@ class LInEx(MetaModule):
                         else:
                             idx = self.sample_data(labels, trained=set(), k=1)
                         loss_list.insert(0, self.contrastive_loss(inputs[idx, :], labels[idx]))
+                print("loss_list:", loss_list)
                 return loss_list
             if contrastive == True:
                 inputs = torch.cat(all_inputs, dim=0)
