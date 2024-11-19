@@ -156,7 +156,7 @@ def main():
     learned_labels = set(stage_labels[0])
     dev_metrics = None
     test_metrics = None
-    print(opts.finetune, opts.generate)
+    print("Finetune and Generate",opts.finetune, opts.generate)
     while not termination:
         if not opts.test_only:
             if opts.skip_first and loader_id == 0:
