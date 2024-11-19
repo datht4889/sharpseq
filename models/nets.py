@@ -418,6 +418,7 @@ class LInEx(MetaModule):
                 exemplar_distill: bool = False, feature_distill: bool = False, mul_distill=False, distill: bool = False,
                 return_loss: bool = True, return_feature: bool = False, tau: float = 1.0, log_outputs: bool = True,
                 params=None, hyer_distill: bool = False, return_all_features: bool = False, init:int=0.1, lambda_coef:int=1e-1):
+        print("START FORWARD")
         balance_na = self.balance_na
         loss_list = []
         if isinstance(batch, (tuple, list)) and len(batch) == 2:
@@ -467,6 +468,7 @@ class LInEx(MetaModule):
             self.outputs["encoded_features"] = inputs.clone().detach().cpu()
 
         if return_loss:
+            print("START RETURN_LOSS")
             labels.masked_fill_(labels >= nslots, 0)
             plabels = torch.nonzero(labels > 0, as_tuple=True)[0].tolist()
             nlabels = torch.nonzero(labels==0, as_tuple=True)[0].tolist()
@@ -494,11 +496,12 @@ class LInEx(MetaModule):
                 loss_ed += loss2*len(nlabels)/(len(plabels)*balance_na + len(nlabels))
 
             loss += loss_ed # L_ed cross entropy loss with regurlarization
-
+            print("LOSS += LOSS_ED")
             rate = 128/self.loader_length
             try:
                 loss_list.append((loss+lambda_coef*self.compute_KL_bernoulli(self.input_map[2].log_alpha)*rate)
                                  if self.is_adap else loss)
+                print("APPEND LOSS_ED")
             except:
                 import pdb
                 pdb.set_trace()
@@ -560,6 +563,7 @@ class LInEx(MetaModule):
                                            inputs / inputs.norm(dim=-1, keepdim=True)).sum(dim=-1)).mean(dim=0)
                     loss_distill += loss_f_distill
                 loss_list.append(loss_distill)
+                print("APPEND LOSS DISTILL")
                 d_weight = self.history["nslots"]
                 c_weight = (self.nslots - self.history["nslots"])
                 loss = (d_weight * loss_distill + c_weight * loss) / (d_weight + c_weight) # L_d 
@@ -615,6 +619,7 @@ class LInEx(MetaModule):
                     rate = exemplar_features.size(0)/(len(self.gen_labels) + len(self.exemplar_labels))
                     loss_exemplar += lambda_coef*self.compute_KL_bernoulli(self.input_map[2].log_alpha)*rate
                 loss_list.append(loss_exemplar)
+                print("APPEND LOSS EXEMPLAR")
                 if torch.isnan(loss_exemplar):
                     print(exemplar_labels, nslots)
                     input()
@@ -707,6 +712,7 @@ class LInEx(MetaModule):
                     d_weight = self.history["nslots"]
                     c_weight = (self.nslots - self.history["nslots"])
                     loss_list.append(loss_exemplar_distill)
+                    print("APPEND LOSS EXEMPLAR DISTILL")
                     loss_exemplar = (d_weight * loss_exemplar_distill + c_weight * loss_exemplar) / (
                                 d_weight + c_weight)
                 e_weight = exemplar_features.size(0)
@@ -724,6 +730,7 @@ class LInEx(MetaModule):
                         else:
                             idx = self.sample_data(labels, trained=set(), k=1)
                         loss_list.insert(0, self.contrastive_loss(inputs[idx, :], labels[idx]))
+                        print("INSERT CONTRASTIVE")
                 return loss_list
             if contrastive == True:
                 inputs = torch.cat(all_inputs, dim=0)
