@@ -274,6 +274,7 @@ class Worker(object):
                             
                             ### change ###
                             new_loss = []
+                            loss.to(self.device)
                             alpha = 0.5
                             for _ in loss:
                                 new_loss.append(sum(_ + torch.tensor(loss).to(self.device)*alpha).item())
