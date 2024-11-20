@@ -276,7 +276,8 @@ class Worker(object):
                             new_loss = []
                             alpha = 0.5
                             for _ in loss:
-                                new_loss.append(sum(_ + torch.tensor(loss).to("cuda")*alpha).item())
+                                new_loss.append(sum(_ + torch.tensor(loss).to(self.device)*alpha).item())
+                            new_loss = torch.tensor(new_loss).to(self.device)
                             ##############
 
                             loss, alpha = self.mul_loss(losses=new_loss, shared_parameters=parameters)
