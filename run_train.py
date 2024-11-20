@@ -157,7 +157,9 @@ def main():
     dev_metrics = None
     test_metrics = None
     print("Finetune and Generate",opts.finetune, opts.generate)
+    print("TRAIN_EPOCH", opts.train_epoch)
     while not termination:
+        print("==============================================")
         if not opts.test_only:
             if opts.skip_first and loader_id == 0:
                 worker.load(model, optimizer, path=opts.load_first, strict=opts.balance!='bic')
