@@ -11,7 +11,7 @@ from sklearn.cluster import KMeans
 #from pycave.bayes import GMM
 from sklearn.mixture import GaussianMixture as GMM
 from torch.nn.modules.linear import Linear
-from utils.torchmeta_modules import MetaLinear, MetaModule
+from torchmeta.modules import MetaLinear, MetaSequential, MetaModule
 from transformers import AutoModelForMaskedLM
 from tqdm import tqdm
 import random as rd
@@ -175,7 +175,7 @@ class lm_ot(torch.nn.Module):
         self.topics = torch.nn.ParameterList([torch.nn.Parameter(torch.nn.init.normal_(torch.empty(1,hidden_size), 0, 0.01)) for i in range(max_slots-1)])
         self.to(device)
         self.device = device
-        with open("/kaggle/working/sharpseq/verb.json") as f:
+        with open("verb.json") as f:
             self.verbs = json.load(f)
         self.non_verbs = [i for i in range(vocab_size) if i not in self.verbs]
     
@@ -305,7 +305,7 @@ class LInEx(MetaModule):
         self.trained_replay = set()
         self.trained_generate = set()
         #self.alpha = torch.nn.Parameter(torch.normal(torch.zeros(input_dim), torch.ones(input_dim)*-1)).to(self.device)
-        with open("/kaggle/working/sharpseq/data/MAVEN/streams.json") as f:
+        with open("data/MAVEN/streams.json") as f:
             task2id = json.load(f)
             id2task = {}
             start = 1
@@ -482,19 +482,14 @@ class LInEx(MetaModule):
             loss = 0
             loss += 0.2*self.class_loss()
             loss += 0.2*self.lm_head(features, inputs, self.nslots)
-            
-            loss_ed = 0
             if len(plabels) > 0:
                 loss1 = self.crit(scores[plabels, :], labels[plabels])
                 #loss_list.append(loss1*5)
-                loss_ed += loss1*balance_na*len(plabels)/(len(plabels)*balance_na + len(nlabels))
+                loss += loss1*balance_na*len(plabels)/(len(plabels)*balance_na + len(nlabels))
             if len(nlabels) > 0:
                 loss2 = self.crit(scores[nlabels, :], labels[nlabels])
                 #loss_list.append(loss2)
-                loss_ed += loss2*len(nlabels)/(len(plabels)*balance_na + len(nlabels))
-
-            loss += loss_ed # L_ed cross entropy loss with regurlarization
-
+                loss += loss2*len(nlabels)/(len(plabels)*balance_na + len(nlabels))
             rate = 128/self.loader_length
             try:
                 loss_list.append((loss+lambda_coef*self.compute_KL_bernoulli(self.input_map[2].log_alpha)*rate)
@@ -562,7 +557,7 @@ class LInEx(MetaModule):
                 loss_list.append(loss_distill)
                 d_weight = self.history["nslots"]
                 c_weight = (self.nslots - self.history["nslots"])
-                loss = (d_weight * loss_distill + c_weight * loss) / (d_weight + c_weight) # L_d 
+                loss = (d_weight * loss_distill + c_weight * loss) / (d_weight + c_weight)
                 if torch.isnan(loss):
                     print(old_scores, new_scores)
                     input()
@@ -710,7 +705,7 @@ class LInEx(MetaModule):
                     loss_exemplar = (d_weight * loss_exemplar_distill + c_weight * loss_exemplar) / (
                                 d_weight + c_weight)
                 e_weight = exemplar_features.size(0)
-                loss = (nvalid * loss + e_weight * loss_exemplar) / (nvalid + e_weight) # L_r
+                loss = (nvalid * loss + e_weight * loss_exemplar) / (nvalid + e_weight)
                 if torch.isnan(loss):
                     print(loss, loss_exemplar)
             if return_loss_list == True:
@@ -724,7 +719,6 @@ class LInEx(MetaModule):
                         else:
                             idx = self.sample_data(labels, trained=set(), k=1)
                         loss_list.insert(0, self.contrastive_loss(inputs[idx, :], labels[idx]))
-
                 return loss_list
             if contrastive == True:
                 inputs = torch.cat(all_inputs, dim=0)

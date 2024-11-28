@@ -211,7 +211,6 @@ class Worker(object):
                             loss.backward()
                         
                     else:
-                        print("LENGTH LOSS", len(loss))
                         if opts.debug:
                             import time
                             st_time = time.time()
@@ -271,17 +270,7 @@ class Worker(object):
                             loss = f_loss(batch)
                             if opts.mul_task_type == 'IMTLG' or  opts.mul_task_type == 'PCGrad' or opts.mul_task_type == 'MGDA':
                                 loss = torch.stack(loss) * 1.0
-                            
-                            ### change ###
-                            new_loss = []
-                            loss.to(self.device)
-                            alpha = 0.5
-                            for _ in loss:
-                                new_loss.append(sum(_ + torch.tensor(loss).to(self.device)*alpha).item())
-                            new_loss = torch.tensor(new_loss).to(self.device)
-                            ##############
-
-                            loss, alpha = self.mul_loss(losses=new_loss, shared_parameters=parameters)
+                            loss, alpha = self.mul_loss(losses=loss, shared_parameters=parameters)
                         except Exception as e:
                             #import pdb
                             #pdb.set_trace()

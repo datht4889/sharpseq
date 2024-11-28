@@ -76,7 +76,7 @@ def main():
             num_workers=0,
             dataset=dataset_id)
     else:
-        sis = json.load(open("/kaggle/working/sharpseq/data/MAVEN/stream_instances_2227341903.json"))
+        sis = json.load(open("data/MAVEN/stream_instances_2227341903.json"))
         if perm_id <= 3:
             print(f"running perm {perm_id}")
             sis = [sis[t] for t in PERM[perm_id]]
@@ -156,10 +156,8 @@ def main():
     learned_labels = set(stage_labels[0])
     dev_metrics = None
     test_metrics = None
-    print("Finetune and Generate",opts.finetune, opts.generate)
-    print("TRAIN_EPOCH", opts.train_epoch)
+    print(opts.finetune, opts.generate)
     while not termination:
-        print("==============================================")
         if not opts.test_only:
             if opts.skip_first and loader_id == 0:
                 worker.load(model, optimizer, path=opts.load_first, strict=opts.balance!='bic')
@@ -245,7 +243,7 @@ def main():
                 for label in indices.keys():
                     if label != 0:
                         frequency[label] = indices[label][1] - indices[label][0]
-            with open("/kaggle/working/sharpseq/data/MAVEN/label2id.json") as fp:
+            with open("data/MAVEN/label2id.json") as fp:
                 name2label = json.load(fp)
                 label2name = {v:k for k,v in name2label.items()}
             id2label = {v:k for k,v in label2id.items()}
@@ -266,8 +264,7 @@ def main():
                 # if opts.debug:
                 #     import pdb
                 #     pdb.set_trace()
-                # torch.save(test_outputs, f"/kaggle/working/log/{os.path.basename(opts.load_model)}.output")
-                torch.save(test_outputs, f"/kaggle/working/log/test_outputs.output")
+                torch.save(test_outputs, f"log/{os.path.basename(opts.load_model)}.output")
                 test_scores, (test_p, test_r, test_f) = by_class(test_outputs["prediction"], test_outputs["label"], learned_labels=learned_labels)
                 test_class_f1 = {k: test_scores[k][2] for k in test_scores}
                 for k,v in test_class_f1.items():
@@ -286,7 +283,7 @@ def main():
 
             print(f"patience: {no_better} / {patience}")
             try:
-                with open("/kaggle/working/log/alpha.txt", "a+") as f:
+                with open("log/alpha.txt", "a+") as f:
                     f.write(torch.exp(model.input_map[3].log_alpha).__str__())
                     f.write("\n")
             except:
@@ -303,7 +300,6 @@ def main():
                     print("setting train exemplar for learned classes")
                     #model.set_clusters(exemplar_loaders[loader_id-1])
                     model.set_exemplar(exemplar_loaders[loader_id-1], generate_ratio=opts.generate_ratio, generate=opts.generate, center_ratio=opts.center_ratio, mode=opts.mode, num_clusters=opts.clusters)
-                    print("SET EXAMPLAR")
                 model.set_class()
                 model.lm_head.expand(model.nslots)
 
@@ -390,7 +386,6 @@ def main():
                     best_dev = dev_metrics; best_test = test_metrics
                 if not opts.finetune:
                     model.set_history()
-                    print("SET HISTORY")
                 for output_log in [print, worker._log]:
                     output_log(f"BEST DEV {loader_id-1}: {best_dev if best_dev is not None else 0}")
                     output_log(f"BEST TEST {loader_id-1}: {best_test if best_test is not None else 0}")
