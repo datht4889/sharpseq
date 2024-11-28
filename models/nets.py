@@ -175,7 +175,7 @@ class lm_ot(torch.nn.Module):
         self.topics = torch.nn.ParameterList([torch.nn.Parameter(torch.nn.init.normal_(torch.empty(1,hidden_size), 0, 0.01)) for i in range(max_slots-1)])
         self.to(device)
         self.device = device
-        with open("verb.json") as f:
+        with open("/kaggle/working/sharseq-ace/verb.json") as f:
             self.verbs = json.load(f)
         self.non_verbs = [i for i in range(vocab_size) if i not in self.verbs]
     
