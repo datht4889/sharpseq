@@ -270,7 +270,19 @@ class Worker(object):
                             loss = f_loss(batch)
                             if opts.mul_task_type == 'IMTLG' or  opts.mul_task_type == 'PCGrad' or opts.mul_task_type == 'MGDA':
                                 loss = torch.stack(loss) * 1.0
-                            loss, alpha = self.mul_loss(losses=loss, shared_parameters=parameters)
+
+                            # loss, alpha = self.mul_loss(losses=loss, shared_parameters=parameters)
+
+                            ## change ###
+                            # new_loss = [torch.sum(l + torch.sum(torch.stack(loss)) * opts.extra_weight_loss) for l in loss]
+                            # new_loss = [torch.sum(-l * opts.extra_weight_loss + torch.sum(torch.stack(loss))) for l in loss]
+                            scaling_factor = 1 + (self.epoch / opts.train_epoch)  # Linearly increase weight
+                            weights = torch.tensor([scaling_factor, 1.0, scaling_factor, 1.0])
+                            new_loss = [w * l for w, l in zip(weights, loss)]
+                            loss, alpha = self.mul_loss(losses=new_loss, shared_parameters=parameters, FairGrad_alpha=0.5)
+                            #############
+
+
                         except Exception as e:
                             #import pdb
                             #pdb.set_trace()
