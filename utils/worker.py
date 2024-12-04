@@ -7,6 +7,7 @@ import torch
 from tqdm import tqdm
 from typing import Any, Dict, List, Tuple, Union
 import gc
+import math
 
 import traceback
 from utils.options import parse_arguments
@@ -276,8 +277,9 @@ class Worker(object):
                             ## change ###
                             # new_loss = [torch.sum(l + torch.sum(torch.stack(loss)) * opts.extra_weight_loss) for l in loss]
                             # new_loss = [torch.sum(-l * opts.extra_weight_loss + torch.sum(torch.stack(loss))) for l in loss]
-                            scaling_factor = 1 + (self.epoch / opts.train_epoch) * 2.5  # Linearly increase weight
-                            weights = torch.tensor([1.0, scaling_factor, 1.0, scaling_factor])
+                            scaling_factor = (self.epoch / opts.train_epoch)  # Linearly increase weight
+                            scaling_factor = math.log(1 / math.cos(scaling_factor / 20))
+                            weights = torch.tensor([1.0 - scaling_factor, 1.0 + scaling_factor, 1.0 - scaling_factor, 1.0 +scaling_factor])
                             new_loss = [w * l for w, l in zip(weights, loss)]
                             loss, alpha = self.mul_loss(losses=new_loss, shared_parameters=parameters, FairGrad_alpha=0.5)
                             #############
