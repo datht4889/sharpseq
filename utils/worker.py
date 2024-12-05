@@ -275,7 +275,7 @@ class Worker(object):
                             # loss, alpha = self.mul_loss(losses=loss, shared_parameters=parameters)
 
                             ## change ###
-                            scaling_strategy = 'piecewise'  # ['linear', 'exponential', 'sigmoid', 'piecewise']
+                            scaling_strategy = 'sigmoid'  # ['linear', 'exponential', 'sigmoid', 'piecewise']
                             scaling_base = math.e
                             scaling_k = 10
 
