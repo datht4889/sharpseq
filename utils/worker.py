@@ -276,7 +276,7 @@ class Worker(object):
 
                             ## change ###
                             scaling_strategy = 'exponential'  # ['linear', 'exponential', 'sigmoid', 'piecewise']
-                            scaling_base = math.e
+                            scaling_base = 2
                             scaling_k = 10
 
                             def piecewise_scaling(epoch):
