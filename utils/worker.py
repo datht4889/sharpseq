@@ -275,12 +275,31 @@ class Worker(object):
                             # loss, alpha = self.mul_loss(losses=loss, shared_parameters=parameters)
 
                             ## change ###
-                            # new_loss = [torch.sum(l + torch.sum(torch.stack(loss)) * opts.extra_weight_loss) for l in loss]
-                            # new_loss = [torch.sum(-l * opts.extra_weight_loss + torch.sum(torch.stack(loss))) for l in loss]
-                            scaling_factor = (self.epoch / opts.train_epoch)  # Linearly increase weight
-                            # scaling_factor = math.log(1 / math.cos(scaling_factor / 20)) * 1.8
-                            scaling_factor = 1.04**scaling_factor - 1
-                            weights = torch.tensor([1.0, 1.0+scaling_factor, 1.0, 1.0+scaling_factor])
+                            scaling_strategy = 'piecewise' # ['linear', 'exponential', 'sigmoid', 'piecewise']
+                            scaling_base = math.e
+                            scaling_k = 10
+
+                            def piecewise_scaling(epoch):
+                                if epoch < self.train_epoch * 0.3:
+                                    return 0.2  # Initial scaling
+                                elif epoch < self.train_epoch * 0.6:
+                                    return 0.5  # Mid training scaling
+                                else:
+                                    return 1  # Late training scaling
+                            if scaling_strategy == 'linear':
+                                scaling_factor = self.epoch / self.train_epoch
+                            elif scaling_strategy == 'exponential':
+                                scaling_factor = scaling_base ** (self.epoch / self.train_epoch) - 1
+                            elif scaling_strategy == 'sigmoid':
+                                midpoint = self.train_epoch / 2
+                                scaling_factor = 1 / (1 + math.exp(-scaling_k * (self.epoch - midpoint) / self.train_epoch))
+                            elif scaling_strategy == 'piecewise':
+                                scaling_factor = piecewise_scaling(self.epoch)
+                            else:
+                                raise ValueError(f"Unknown scaling strategy: {scaling_strategy}")
+                            # print(round(scaling_factor, 3), end="  ")
+
+                            weights = torch.tensor([1.0, 1.0 + scaling_factor, 1.0, 1.0 + scaling_factor])
                             new_loss = [w * l for w, l in zip(weights, loss)]
                             loss, alpha = self.mul_loss(losses=new_loss, shared_parameters=parameters, FairGrad_alpha=0.5)
                             #############
