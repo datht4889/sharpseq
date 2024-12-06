@@ -11,7 +11,7 @@ import math
 
 import traceback
 from utils.options import parse_arguments
-from .weight_methods import WeightMethods, PCGrad, IMTLG, MGDA
+from .weight_methods import *
 from .sam import SAM
 opts = parse_arguments()
 if opts.mul_task_type == 'NashMTL':
