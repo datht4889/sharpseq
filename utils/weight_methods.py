@@ -283,9 +283,9 @@ class FairGrad(WeightMethod):
     <https://openreview.net/forum?id=KLmWRMg6nL>`_ and implemented by modifying from the 
     `official PyTorch implementation <https://github.com/OptMN-Lab/fairgrad>`_.
     """
-    def __init__(self, n_tasks: int, device: torch.device):
-        super().__init__(n_tasks, device)
-
+    def __init__(self, n_tasks: int, device: torch.device, **kwargs):
+        super().__init__(n_tasks, device, **kwargs)
+        self.kwargs = kwargs
     def get_weighted_loss(
         self,
         losses: torch.Tensor,
@@ -318,7 +318,7 @@ class FairGrad(WeightMethod):
         extra_outputs : dict
             Additional outputs, including task weights.
         """
-        alpha = kwargs.get("FairGrad_alpha", 1.0)
+        alpha = self.kwargs.get("FairGrad_alpha", 1.0)
 
         if representation is not None:
             raise ValueError("FairGrad does not support representation gradients (rep_grad=True)")

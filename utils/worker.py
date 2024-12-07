@@ -237,6 +237,9 @@ class Worker(object):
 
                             if opts.mul_task_type == 'NashMTL':
                                 self.mul_loss = NashMTL(n_tasks=len(loss), device=self.device)
+                                
+                            if opts.mul_task_type == 'FairGrad':
+                                self.mul_loss = FairGrad(n_tasks=len(loss), device=self.device, FairGrad_alpha=0.5)
                         try:
                             if self.mul_loss.n_tasks != len(loss):
                                 
@@ -258,6 +261,9 @@ class Worker(object):
                                 if opts.mul_task_type == 'NashMTL':
                                     self.mul_loss = NashMTL(n_tasks=len(loss), device=self.device)
 
+                                if opts.mul_task_type == 'FairGrad':
+                                    self.mul_loss = FairGrad(n_tasks=len(loss), device=self.device, FairGrad_alpha=0.5)
+
                             if opts.mul_task_type == 'IMTLG' or  opts.mul_task_type == 'PCGrad' or opts.mul_task_type == 'MGDA':
                                 loss = torch.stack(loss) * 1.0
                                 
@@ -275,7 +281,7 @@ class Worker(object):
                             # loss, alpha = self.mul_loss(losses=loss, shared_parameters=parameters)
 
                             ## change ###
-                            scaling_strategy = 'exponential'  # ['linear', 'exponential', 'sigmoid', 'piecewise']
+                            scaling_strategy = 'linear'  # ['linear', 'exponential', 'sigmoid', 'piecewise']
                             scaling_base = 2
                             scaling_k = 10
 
@@ -301,7 +307,7 @@ class Worker(object):
 
                             weights = torch.tensor([1.0, 1.0 + scaling_factor, 1.0, 1.0 + scaling_factor])
                             new_loss = [w * l for w, l in zip(weights, loss)]
-                            loss, alpha = self.mul_loss(losses=new_loss, shared_parameters=parameters, FairGrad_alpha=0.5)
+                            loss, alpha = self.mul_loss(losses=new_loss, shared_parameters=parameters)
                             #############
 
 
