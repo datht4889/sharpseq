@@ -239,7 +239,7 @@ class Worker(object):
                                 self.mul_loss = NashMTL(n_tasks=len(loss), device=self.device)
                                 
                             if opts.mul_task_type == 'FairGrad':
-                                self.mul_loss = FairGrad(n_tasks=len(loss), device=self.device, FairGrad_alpha=0.5)
+                                self.mul_loss = FairGrad(n_tasks=len(loss), device=self.device, FairGrad_alpha=0.4)
                         try:
                             if self.mul_loss.n_tasks != len(loss):
                                 
@@ -262,7 +262,7 @@ class Worker(object):
                                     self.mul_loss = NashMTL(n_tasks=len(loss), device=self.device)
 
                                 if opts.mul_task_type == 'FairGrad':
-                                    self.mul_loss = FairGrad(n_tasks=len(loss), device=self.device, FairGrad_alpha=0.5)
+                                    self.mul_loss = FairGrad(n_tasks=len(loss), device=self.device, FairGrad_alpha=0.4)
 
                             if opts.mul_task_type == 'IMTLG' or  opts.mul_task_type == 'PCGrad' or opts.mul_task_type == 'MGDA':
                                 loss = torch.stack(loss) * 1.0
