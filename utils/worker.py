@@ -318,7 +318,7 @@ class Worker(object):
                             print(self.mul_loss.n_tasks)
                             print(opts.mul_task_type)
                             print(loss)
-                            input()
+                            # input()
                             #import pdb
                             #pdb.set_trace()
                         if opts.debug:

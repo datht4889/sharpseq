@@ -7,7 +7,7 @@ import cvxpy as cp
 import numpy as np
 import torch
 import torch.nn.functional as F
-from scipy.optimize import minimize
+from scipy.optimize import minimize, least_squares  
 
 from .min_norm_solvers import MinNormSolver, gradient_normalizers
 
@@ -329,20 +329,16 @@ class FairGrad(WeightMethod):
 
         # Solve the FairGrad optimization problem using Torch
         x = torch.ones(self.n_tasks, device=self.device, requires_grad=True) / self.n_tasks
-        A = GTG
+        A = GTG.data.cpu().numpy()
 
-        optimizer = torch.optim.Adam([x], lr=0.01)
+        def objfn(x):
+            return np.dot(A, x) - np.power(1 / x, 1 / alpha)
 
-        for _ in range(100):
-            optimizer.zero_grad()
-            obj = torch.mv(A, x) - torch.pow(1 / x, 1 / alpha)
-            loss = obj.norm()
-            loss.backward()
-            optimizer.step()
-            with torch.no_grad():
-                x.clamp_(min=1e-6)  # Ensure x remains positive
+        res = least_squares(objfn, x, bounds=(0, np.inf))
+        w_cpu = res.x
 
-        weights = x.detach()
+
+        weights = torch.Tensor(w_cpu).to(self.device)
 
         # Compute weighted loss
         weighted_loss = torch.sum(weights * losses)
