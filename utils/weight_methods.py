@@ -334,7 +334,7 @@ class FairGrad(WeightMethod):
         def objfn(x):
             return np.dot(A, x) - np.power(1 / x, 1 / alpha)
 
-        res = least_squares(objfn, x, bounds=(0, np.inf))
+        res = least_squares(objfn, x.cpu().detach().numpy(), bounds=(0, np.inf))
         w_cpu = res.x
 
 
