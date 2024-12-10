@@ -341,7 +341,13 @@ class FairGrad(WeightMethod):
         weights = torch.Tensor(w_cpu).to(self.device)
 
         # Compute weighted loss
-        weighted_loss = torch.sum(weights * losses)
+        try:
+            weighted_loss = sum([losses[i] * weights[i] for i in range(len(weights))])
+        except:
+            print("FairGrad failed")
+            print(weights.shape)
+            print(losses)
+        # weighted_loss = torch.sum(weights * losses)
 
         # Return loss and extra outputs
         extra_outputs = {"weights": weights.cpu().numpy()}
