@@ -304,11 +304,11 @@ class Worker(object):
                             else:
                                 raise ValueError(f"Unknown scaling strategy: {scaling_strategy}")
                             # print(round(scaling_factor, 3), end="  ")
-                            if self.epoch == self.train_epoch:
-                                    loss_file_path = os.path.join(opts.log_dir, "LOSS_LOG.txt")
-                                    loss_file = open(loss_file_path, 'a')
-                                    loss_file.writelines(f"Epoch {self.epoch:3d}  Loss {torch.round(torch.tensor(loss), decimals=3)}")
-                                    loss_file.write('\n')
+                            # if self.epoch == self.train_epoch:
+                            #         loss_file_path = os.path.join(opts.log_dir, "LOSS_LOG.txt")
+                            #         loss_file = open(loss_file_path, 'a')
+                            #         loss_file.writelines(f"Epoch {self.epoch:3d}  Loss {torch.round(torch.tensor(loss), decimals=3)}")
+                            #         loss_file.write('\n')
                             weights = torch.tensor([1.0, 1.0 + scaling_factor, 1.0, 1.0 + scaling_factor])
                             new_loss = [w * l for w, l in zip(weights, loss)]
                             loss, alpha = self.mul_loss(losses=new_loss, shared_parameters=parameters)
