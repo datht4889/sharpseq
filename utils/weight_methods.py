@@ -452,7 +452,10 @@ class ExcessMTL(WeightMethod):
             self.loss_weight = self.loss_weight.detach()
 
         # Compute weighted loss
-        loss = torch.mul(torch.Tensor(losses), self.loss_weight).sum()
+        try:
+            loss = torch.mul(torch.Tensor(losses).to(self.device), self.loss_weight).sum()
+        except:
+            print(losses)
         extra_outputs = {'loss_weights': self.loss_weight.cpu().numpy()}
         return loss, extra_outputs
 
