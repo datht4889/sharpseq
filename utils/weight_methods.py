@@ -382,6 +382,65 @@ class FairGrad(WeightMethod):
         return torch.stack(grads)
 
 
+class ExcessMTL(WeightMethod):
+    r"""ExcessMTL.
+
+    This method is proposed in `Robust Multi-Task Learning with Excess Risks (ICML 2024) <https://openreview.net/forum?id=JzWFmMySpn>`_ \
+    and implemented by modifying from the `official PyTorch implementation <https://github.com/yifei-he/ExcessMTL/blob/main/LibMTL/LibMTL/weighting/ExcessMTL.py>`_. 
+
+    """
+
+    def __init__(self, n_tasks: int, device: torch.device, robust_step_size: float):
+        super().__init__(n_tasks=n_tasks, device=device)
+        self.robust_step_size = robust_step_size
+        self.loss_weight = torch.ones(n_tasks, device=device, requires_grad=False)
+        self.grad_sum = None
+        self.first_epoch = True
+
+    def get_weighted_loss(
+        self,
+        losses: torch.Tensor,
+        shared_parameters: Union[
+            List[torch.nn.parameter.Parameter], torch.Tensor
+        ] = None,
+        task_specific_parameters: Union[
+            List[torch.nn.parameter.Parameter], torch.Tensor
+        ] = None,
+        **kwargs,
+    ):
+        # Compute gradients
+        grads = self._get_grads(losses, mode='autograd')
+        if self.rep_grad:
+            per_grads, grads = grads[0], grads[1]
+            grads = []
+            for grad in per_grads:
+                grads.append(torch.sum(grad, dim=0))
+            grads = torch.stack(grads)
+        
+        if self.grad_sum is None:
+            self.grad_sum = torch.zeros_like(grads)
+        
+        w = torch.zeros(self.n_tasks, device=self.device)
+        for i in range(self.n_tasks):
+            self.grad_sum[i] += grads[i] ** 2
+            grad_i = grads[i]
+            h_i = torch.sqrt(self.grad_sum[i] + 1e-7)
+            w[i] = grad_i @ (grad_i / h_i)
+        
+        if self.first_epoch:
+            self.initial_w = w
+            self.first_epoch = False
+        else:
+            w = w / self.initial_w
+            self.loss_weight = self.loss_weight * torch.exp(w * self.robust_step_size)
+            self.loss_weight = self.loss_weight / self.loss_weight.sum() * self.n_tasks
+            self.loss_weight = self.loss_weight.detach().clone()
+        
+        # Compute weighted loss
+        loss = torch.mul(losses, self.loss_weight).sum()
+        extra_outputs = {'loss_weights': self.loss_weight.cpu().numpy()}
+        return loss, extra_outputs
+
 class LinearScalarization(WeightMethod):
     """Linear scalarization baseline L = sum_j w_j * l_j where l_j is the loss for task j and w_h"""
 
