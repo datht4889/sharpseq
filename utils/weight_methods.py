@@ -390,56 +390,73 @@ class ExcessMTL(WeightMethod):
 
     """
 
-    def __init__(self, n_tasks: int, device: torch.device, robust_step_size: float):
+    def __init__(self, n_tasks: int, device: torch.device, **kwargs):
         super().__init__(n_tasks=n_tasks, device=device)
-        self.robust_step_size = robust_step_size
         self.loss_weight = torch.ones(n_tasks, device=device, requires_grad=False)
         self.grad_sum = None
         self.first_epoch = True
+        self.kwargs = kwargs
+        self.robust_step_size = kwargs.get("robust_step_size", 0.8)
+        self.rep_grad = kwargs.get("rep_grad", False)
+
+    def _get_grads(self, losses, shared_parameters, mode='autograd'):
+        grads = []
+        for loss in losses:
+            grad = torch.autograd.grad(
+                loss, shared_parameters, retain_graph=True, create_graph=False
+            )
+            grads.append(torch.cat([g.view(-1) for g in grad]))
+        grads = torch.stack(grads)
+        return grads
 
     def get_weighted_loss(
         self,
         losses: torch.Tensor,
         shared_parameters: Union[
-            List[torch.nn.parameter.Parameter], torch.Tensor
+            List[torch.nn.Parameter], torch.Tensor
         ] = None,
         task_specific_parameters: Union[
-            List[torch.nn.parameter.Parameter], torch.Tensor
+            List[torch.nn.Parameter], torch.Tensor
         ] = None,
         **kwargs,
     ):
         # Compute gradients
-        grads = self._get_grads(losses, mode='autograd')
+        grads = self._get_grads(losses, shared_parameters, mode='autograd')
+
         if self.rep_grad:
-            per_grads, grads = grads[0], grads[1]
+            per_grads, shared_grads = grads[0], grads[1]
             grads = []
             for grad in per_grads:
                 grads.append(torch.sum(grad, dim=0))
             grads = torch.stack(grads)
-        
+        else:
+            shared_grads = grads
+
         if self.grad_sum is None:
-            self.grad_sum = torch.zeros_like(grads)
-        
+            self.grad_sum = torch.zeros_like(shared_grads)
+
         w = torch.zeros(self.n_tasks, device=self.device)
         for i in range(self.n_tasks):
-            self.grad_sum[i] += grads[i] ** 2
-            grad_i = grads[i]
+            self.grad_sum[i] += shared_grads[i] ** 2
+            grad_i = shared_grads[i]
             h_i = torch.sqrt(self.grad_sum[i] + 1e-7)
-            w[i] = grad_i @ (grad_i / h_i)
-        
+            w[i] = torch.dot(grad_i, grad_i / h_i)
+
         if self.first_epoch:
-            self.initial_w = w
+            self.initial_w = w.clone()
             self.first_epoch = False
         else:
             w = w / self.initial_w
             self.loss_weight = self.loss_weight * torch.exp(w * self.robust_step_size)
             self.loss_weight = self.loss_weight / self.loss_weight.sum() * self.n_tasks
-            self.loss_weight = self.loss_weight.detach().clone()
-        
+            self.loss_weight = self.loss_weight.detach()
+
         # Compute weighted loss
         loss = torch.mul(losses, self.loss_weight).sum()
         extra_outputs = {'loss_weights': self.loss_weight.cpu().numpy()}
         return loss, extra_outputs
+
+
 
 class LinearScalarization(WeightMethod):
     """Linear scalarization baseline L = sum_j w_j * l_j where l_j is the loss for task j and w_h"""
