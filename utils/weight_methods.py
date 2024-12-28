@@ -475,6 +475,7 @@ class ExcessMTL(WeightMethod):
             extra_outputs = {'loss_weights': self.loss_weight.cpu().detach().numpy()}
             return loss, extra_outputs
         except:
+            print("ExcessMTL failed")
             print(losses)
             return None
 
