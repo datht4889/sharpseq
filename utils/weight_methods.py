@@ -399,15 +399,33 @@ class ExcessMTL(WeightMethod):
         self.robust_step_size = kwargs.get("robust_step_size", 0.8)
         self.rep_grad = kwargs.get("rep_grad", False)
 
-    def _get_grads(self, losses, shared_parameters, mode='autograd'):
+    def _compute_grad(self, losses: torch.Tensor, parameters: List[torch.nn.parameter.Parameter]):
+        """
+        Compute gradients of the losses w.r.t. the shared parameters.
+
+        Parameters
+        ----------
+        losses : torch.Tensor
+        parameters : List[torch.nn.parameter.Parameter]
+
+        Returns
+        -------
+        grads : torch.Tensor
+            Matrix of gradients (n_tasks x n_parameters).
+        """
         grads = []
-        for loss in losses:
+        for i in range(self.n_tasks):
             grad = torch.autograd.grad(
-                loss, shared_parameters, retain_graph=True, create_graph=False
+                losses[i], parameters, retain_graph=True, create_graph=False, allow_unused=True
             )
-            grads.append(torch.cat([g.view(-1) for g in grad]))
-        grads = torch.stack(grads)
-        return grads
+            grad = [
+                g.flatten() if g is not None else torch.zeros_like(p, device=self.device).flatten()
+                for g, p in zip(grad, parameters)
+            ]
+            grad_flat = torch.cat(grad)
+            grads.append(grad_flat)
+
+        return torch.stack(grads)
 
     def get_weighted_loss(
         self,
@@ -421,7 +439,7 @@ class ExcessMTL(WeightMethod):
         **kwargs,
     ):
         # Compute gradients
-        grads = self._get_grads(losses, shared_parameters, mode='autograd')
+        grads = self._compute_grad(losses, shared_parameters)
 
         if self.rep_grad:
             per_grads, shared_grads = grads[0], grads[1]
@@ -454,7 +472,7 @@ class ExcessMTL(WeightMethod):
         # Compute weighted loss
         try:
             loss = torch.mul(torch.Tensor(losses).to(self.device), self.loss_weight).sum()
-            extra_outputs = {'loss_weights': self.loss_weight.cpu().numpy()}
+            extra_outputs = {'loss_weights': self.loss_weight.cpu().detach().numpy()}
             return loss, extra_outputs
         except:
             print(losses)
