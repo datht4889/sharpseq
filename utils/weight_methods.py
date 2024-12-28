@@ -416,8 +416,8 @@ class ExcessMTL(WeightMethod):
         grads = []
         for i in range(self.n_tasks):
             grad = torch.autograd.grad(
-                # losses[i], parameters, retain_graph=True, create_graph=False, allow_unused=True
-                losses[i], parameters, retain_graph=True
+                losses[i], parameters, retain_graph=True, create_graph=False, allow_unused=True
+                # losses[i], parameters, retain_graph=True
             )
             grad = [
                 g.flatten() if g is not None else torch.zeros_like(p, device=self.device).flatten()
