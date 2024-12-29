@@ -70,8 +70,12 @@ class WeightMethod:
             representation=representation,
             **kwargs,
         )
-        loss.backward()
-        return loss, extra_outputs
+        try:
+            loss.backward()
+            return loss, extra_outputs
+        except:
+            print("MOO failed")
+            return None
 
     def __call__(
         self,
