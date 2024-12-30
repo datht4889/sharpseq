@@ -447,16 +447,16 @@ class ExcessMTL(WeightMethod):
         **kwargs,
     ):
         # Compute gradients
-        grads = self._compute_grad(losses, shared_parameters)
+        shared_grads = self._compute_grad(losses, shared_parameters)
 
-        if self.rep_grad:
-            per_grads, shared_grads = grads[0], grads[1]
-            grads = []
-            for grad in per_grads:
-                grads.append(torch.sum(grad, dim=0))
-            grads = torch.stack(grads)
-        else:
-            shared_grads = grads
+        # if self.rep_grad:
+        #     per_grads, shared_grads = grads[0], grads[1]
+        #     grads = []
+        #     for grad in per_grads:
+        #         grads.append(torch.sum(grad, dim=0))
+        #     grads = torch.stack(grads)
+        # else:
+        #     shared_grads = grads
 
         if self.grad_sum is None:
             self.grad_sum = torch.zeros_like(shared_grads)
@@ -469,13 +469,13 @@ class ExcessMTL(WeightMethod):
             w[i] = torch.dot(grad_i, grad_i / h_i)
 
         if self.first_epoch:
-            self.initial_w = w.clone()
+            self.initial_w = w
             self.first_epoch = False
         else:
             w = w / self.initial_w
             self.loss_weight = self.loss_weight * torch.exp(w * self.robust_step_size)
             self.loss_weight = self.loss_weight / self.loss_weight.sum() * self.n_tasks
-            self.loss_weight = self.loss_weight.detach()
+            self.loss_weight = self.loss_weight.detach().clone()
 
         # Compute weighted loss
         try:
