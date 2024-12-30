@@ -417,23 +417,36 @@ class ExcessMTL(WeightMethod):
         grads : torch.Tensor
             Matrix of gradients (n_tasks x n_parameters).
         """
-        grads = []
-        for i in range(self.n_tasks):
-            grad = list(
+        # grads = []
+        # for i in range(self.n_tasks):
+        #     grad = list(
+        #         torch.autograd.grad(
+        #             # losses[i], parameters, retain_graph=True, create_graph=False, allow_unused=True
+        #             losses[i], parameters, retain_graph=True
+        #         )
+        #     )
+        #     # grad = [
+        #     #     g.flatten() if g is not None else torch.zeros_like(p, device=self.device).flatten()
+        #     #     for g, p in zip(grad, parameters)
+        #     # ]
+        #     # grad_flat = torch.cat(grad)
+        #     grad_flat = torch.cat([torch.flatten(grad) for grad in grad])
+        #     grads.append(grad_flat)
+        # return torch.stack(grads)
+
+        grads = {}
+        for i, loss in enumerate(losses):
+            g = list(
                 torch.autograd.grad(
-                    # losses[i], parameters, retain_graph=True, create_graph=False, allow_unused=True
-                    losses[i], parameters, retain_graph=True
+                    loss,
+                    shared_parameters,
+                    retain_graph=True,
                 )
             )
-            # grad = [
-            #     g.flatten() if g is not None else torch.zeros_like(p, device=self.device).flatten()
-            #     for g, p in zip(grad, parameters)
-            # ]
-            # grad_flat = torch.cat(grad)
-            grad_flat = torch.cat([torch.flatten(grad) for grad in grad])
-            grads.append(grad_flat)
-
-        return torch.stack(grads)
+            grad = torch.cat([torch.flatten(grad) for grad in g])
+            grads[i] = grad
+        return grads
+        
 
     def get_weighted_loss(
         self,
