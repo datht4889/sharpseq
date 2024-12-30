@@ -501,7 +501,121 @@ class ExcessMTL(WeightMethod):
             print(losses)
             return None
 
+class MoCo(WeightMethod):
+    r"""MoCo.
+    
+    This method is proposed in `Mitigating Gradient Bias in Multi-objective Learning: A Provably Convergent Approach (ICLR 2023) <https://openreview.net/forum?id=dLAYGdKTi2>`_ \
+    and implemented based on the author' sharing code (Heshan Fernando: fernah@rpi.edu). 
 
+    Args:
+        MoCo_beta (float, default=0.5): The learning rate of y.
+        MoCo_beta_sigma (float, default=0.5): The decay rate of MoCo_beta.
+        MoCo_gamma (float, default=0.1): The learning rate of lambd.
+        MoCo_gamma_sigma (float, default=0.5): The decay rate of MoCo_gamma.
+        MoCo_rho (float, default=0): The \ell_2 regularization parameter of lambda's update.
+
+    .. warning::
+            MoCo is not supported by representation gradients, i.e., ``rep_grad`` must be ``False``.
+
+    """
+    def __init__(self, n_tasks: int, device: torch.device, **kwargs):
+        super().__init__(n_tasks, device, **kwargs)
+        self.step = 0
+        self.y = torch.zeros(self.n_tasks, self.grad_dim).to(self.device)
+        self.lambd = (torch.ones([self.n_tasks, ]) / self.n_tasks).to(self.device)
+
+    def get_weighted_loss(
+        self,
+        losses,
+        shared_parameters,
+        **kwargs,
+    ):
+        """
+        Parameters
+        ----------
+        losses :
+        shared_parameters : shared parameters
+        kwargs :
+        Returns
+        -------
+        """
+        # NOTE: we allow only shared params for now. Need to see paper for other options.
+        grad_dims = []
+        for param in shared_parameters:
+            grad_dims.append(param.data.numel())
+        grads = torch.Tensor(sum(grad_dims), self.n_tasks).to(self.device)
+
+        for i in range(self.n_tasks):
+            if i < self.n_tasks:
+                losses[i].backward(retain_graph=True)
+            else:
+                losses[i].backward()
+            self.grad2vec(shared_parameters, grads, grad_dims, i)
+            # multi_task_model.zero_grad_shared_modules()
+            for p in shared_parameters:
+                p.grad = None
+
+        g = self.moco(grads, **kwargs)
+        self.overwrite_grad(shared_parameters, g, grad_dims)
+
+    def moco(self, grads, **kwargs):
+        self.step += 1
+        beta = kwargs.get('MoCo_beta', 0.5)  # Default value for beta
+        beta_sigma = kwargs.get('MoCo_beta_sigma', 0.1)  # Default value for beta_sigma
+        gamma = kwargs.get('MoCo_gamma', 0.5)  # Default value for gamma
+        gamma_sigma = kwargs.get('MoCo_gamma_sigma', 0.1)  # Default value for gamma_sigma
+        rho = kwargs.get('MoCo_rho', 0.5)  # Default value for rho
+
+        self.y = self.y - (beta/self.step**beta_sigma) * (self.y - grads)
+        self.lambd = F.softmax(self.lambd - (gamma/self.step**gamma_sigma) * (self.y@self.y.t()+rho*torch.eye(self.task_num).to(self.device))@self.lambd, -1)
+        new_grads = self.y.t()@self.lambd
+        return new_grads
+
+
+    @staticmethod
+    def grad2vec(shared_params, grads, grad_dims, task):
+        # store the gradients
+        grads[:, task].fill_(0.0)
+        cnt = 0
+        # for mm in m.shared_modules():
+        #     for p in mm.parameters():
+
+        for param in shared_params:
+            grad = param.grad
+            if grad is not None:
+                grad_cur = grad.data.detach().clone()
+                beg = 0 if cnt == 0 else sum(grad_dims[:cnt])
+                en = sum(grad_dims[: cnt + 1])
+                grads[beg:en, task].copy_(grad_cur.data.view(-1))
+            cnt += 1
+        
+    def overwrite_grad(self, shared_parameters, newgrad, grad_dims):
+        newgrad = newgrad * self.n_tasks  # to match the sum loss
+        cnt = 0
+
+        # for mm in m.shared_modules():
+        #     for param in mm.parameters():
+        for param in shared_parameters:
+            beg = 0 if cnt == 0 else sum(grad_dims[:cnt])
+            en = sum(grad_dims[: cnt + 1])
+            this_grad = newgrad[beg:en].contiguous().view(param.data.size())
+            param.grad = this_grad.data.clone()
+            cnt += 1
+
+    def backward(
+        self,
+        losses: torch.Tensor,
+        parameters: Union[List[torch.nn.parameter.Parameter], torch.Tensor] = None,
+        shared_parameters: Union[
+            List[torch.nn.parameter.Parameter], torch.Tensor
+        ] = None,
+        task_specific_parameters: Union[
+            List[torch.nn.parameter.Parameter], torch.Tensor
+        ] = None,
+        **kwargs,
+    ):
+        self.get_weighted_loss(losses, shared_parameters)
+        return None, {}  # NOTE: to align with all other weight methods
 
 
 class LinearScalarization(WeightMethod):
