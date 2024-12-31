@@ -439,7 +439,7 @@ class ExcessMTL(WeightMethod):
             g = list(
                 torch.autograd.grad(
                     loss,
-                    shared_parameters,
+                    parameters,
                     retain_graph=True,
                 )
             )
