@@ -439,7 +439,7 @@ class ExcessMTL(WeightMethod):
             g = list(
                 torch.autograd.grad(
                     loss,
-                    shared_parameters,
+                    parameters,
                     retain_graph=True,
                 )
             )
@@ -479,7 +479,7 @@ class ExcessMTL(WeightMethod):
             self.grad_sum[i] += shared_grads[i] ** 2
             grad_i = shared_grads[i]
             h_i = torch.sqrt(self.grad_sum[i] + 1e-7)
-            w[i] = torch.dot(grad_i, grad_i / h_i)
+            w[i] = grad_i * (1 / h_i) @ grad_i.t()
 
         if self.first_epoch:
             self.initial_w = w
