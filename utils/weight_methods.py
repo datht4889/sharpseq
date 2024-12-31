@@ -521,7 +521,6 @@ class MoCo(WeightMethod):
     def __init__(self, n_tasks: int, device: torch.device, **kwargs):
         super().__init__(n_tasks, device, **kwargs)
         self.step = 0
-        self.y = torch.zeros(self.n_tasks, self.grad_dim).to(self.device)
         self.lambd = (torch.ones([self.n_tasks, ]) / self.n_tasks).to(self.device)
 
     def get_weighted_loss(
@@ -555,6 +554,7 @@ class MoCo(WeightMethod):
             for p in shared_parameters:
                 p.grad = None
 
+        self.y = torch.zeros(self.n_tasks, grad_dims).to(self.device)
         g = self.moco(grads, **kwargs)
         self.overwrite_grad(shared_parameters, g, grad_dims)
 
