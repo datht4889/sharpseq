@@ -432,7 +432,7 @@ class ExcessMTL(WeightMethod):
                 )
 
             grad = [
-                g.flatten() if g is not None else torch.zeros_like(p, device=self.device).flatten()
+                g.flatten() if g is not None and torch.isnan(g).any() else torch.zeros_like(p, device=self.device).flatten()
                 for g, p in zip(grad, parameters)
             ]
             grad_flat = torch.cat(grad)
