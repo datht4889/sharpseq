@@ -431,12 +431,12 @@ class ExcessMTL(WeightMethod):
                     losses[i], parameters, retain_graph=True
                 )
 
-            # grad = [
-            #     g.flatten() if g is not None else torch.zeros_like(p, device=self.device).flatten()
-            #     for g, p in zip(grad, parameters)
-            # ]
-            # grad_flat = torch.cat(grad)
-            grad_flat = torch.cat([torch.flatten(g) for g in grad])
+            grad = [
+                g.flatten() if g is not None else torch.zeros_like(p, device=self.device).flatten()
+                for g, p in zip(grad, parameters)
+            ]
+            grad_flat = torch.cat(grad)
+            # grad_flat = torch.cat([torch.flatten(g) for g in grad])
             grads.append(grad_flat)
         return torch.stack(grads)
         
