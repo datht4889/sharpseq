@@ -554,7 +554,7 @@ class MoCo(WeightMethod):
             for p in shared_parameters:
                 p.grad = None
 
-        self.y = torch.zeros(self.n_tasks, sum(grad_dims)).to(self.device)
+        self.y = torch.zeros(sum(grad_dims), self.n_tasks).to(self.device)
         g = self.moco(grads, **kwargs)
         self.overwrite_grad(shared_parameters, g, grad_dims)
 
