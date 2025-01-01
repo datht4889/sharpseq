@@ -440,12 +440,12 @@ class LInEx(MetaModule):
         if torch.any(torch.isnan(scores)):
             print(scores[0])
             print("input", inputs)
-            input('a')
+            # input('a')
         if nslots == -1:
             scores += self.mask
             if torch.any(torch.isnan(scores)):
                 print(scores[0])
-                input()
+                # input()
             nslots = self.nslots
         else:
             scores += self.idx_mask(max_idx=nslots)
@@ -478,7 +478,7 @@ class LInEx(MetaModule):
                 loss = self.crit(scores[valid], labels[valid])
                 if torch.isnan(loss):
                     print(labels, nslots, scores[:, :nslots])
-                    input()
+                    # input()
             loss = 0
             loss += 0.2*self.class_loss()
             loss += 0.2*self.lm_head(features, inputs, self.nslots)
@@ -560,7 +560,7 @@ class LInEx(MetaModule):
                 loss = (d_weight * loss_distill + c_weight * loss) / (d_weight + c_weight)
                 if torch.isnan(loss):
                     print(old_scores, new_scores)
-                    input()
+                    # input()
             if exemplar and self.exemplar_features is not None:
                 exemplar_features = self.exemplar_features
                 exemplar_labels = self.exemplar_labels
@@ -612,7 +612,7 @@ class LInEx(MetaModule):
                 loss_list.append(loss_exemplar)
                 if torch.isnan(loss_exemplar):
                     print(exemplar_labels, nslots)
-                    input()
+                    # input()
                 if exemplar_distill:
                     if exemplar_features.size(0) < 128:
                         if hyer_distill:
@@ -1035,7 +1035,7 @@ class LInEx(MetaModule):
                 initvec = proto * gate + knowledge * gate + (1 - gate) * rnd
                 if torch.any(torch.isnan(initvec)):
                     print(proto, knowledge, rnd, gate, exemplar_weights[:, :1], exemplar_scores[-1, :self.nslots])
-                    input()
+                    # input()
                 label_inits.append((label, initvec.cpu()))
                 label_kt[label] = exemplar_weights.mean(dim=0).cpu()
             label_inits.sort(key=lambda t: t[0])
