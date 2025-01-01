@@ -6,6 +6,7 @@ from typing import Dict, List, Tuple, Union
 import cvxpy as cp
 import numpy as np
 import torch
+from torch.cuda.amp import autocast
 import torch.nn.functional as F
 from scipy.optimize import minimize, least_squares  
 
@@ -567,7 +568,9 @@ class MoCo(WeightMethod):
         rho = kwargs.get('MoCo_rho', 0.5)  # Default value for rho
 
         self.y = self.y - (beta/self.step**beta_sigma) * (self.y - grads)
-        self.lambd = self.lambd - (gamma/self.step**gamma_sigma) * (self.y@self.y.t()+rho*torch.eye(self.task_num).to(self.device)) @ self.lambd
+        with autocast():
+            temp = self.y@self.y.t()
+        self.lambd = self.lambd - (gamma/self.step**gamma_sigma) * (temp+rho*torch.eye(self.task_num).to(self.device)) @ self.lambd
         self.lambd = F.softmax(self.lambd, -1)
         new_grads = self.y.t()@self.lambd
         return new_grads
