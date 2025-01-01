@@ -567,7 +567,8 @@ class MoCo(WeightMethod):
         rho = kwargs.get('MoCo_rho', 0.5)  # Default value for rho
 
         self.y = self.y - (beta/self.step**beta_sigma) * (self.y - grads)
-        self.lambd = F.softmax(self.lambd - (gamma/self.step**gamma_sigma) * (self.y@self.y.t()+rho*torch.eye(self.task_num).to(self.device))@self.lambd, -1)
+        self.lambd = self.lambd - (gamma/self.step**gamma_sigma) * (self.y@self.y.t()+rho*torch.eye(self.task_num).to(self.device)) @ self.lambd
+        self.lambd = F.softmax(self.lambd, -1)
         new_grads = self.y.t()@self.lambd
         return new_grads
 
