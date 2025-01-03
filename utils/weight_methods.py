@@ -569,11 +569,12 @@ class MoCo(WeightMethod):
 
         self.y = self.y - (beta/self.step**beta_sigma) * (self.y - grads)
         with autocast():
-            temp = self.y@self.y.t()
+            # temp = self.y@self.y.t()
             temp = torch.matmul(self.y, self.y.t())
         self.lambd = self.lambd - (gamma/self.step**gamma_sigma) * (temp+rho*torch.eye(self.task_num).to(self.device)) @ self.lambd
         self.lambd = F.softmax(self.lambd, -1)
         new_grads = self.y.t()@self.lambd
+        del self.y, self.lambd
         return new_grads
 
 
