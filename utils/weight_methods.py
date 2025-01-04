@@ -543,6 +543,7 @@ class MoCo(WeightMethod):
         grad_dims = []
         for param in shared_parameters:
             grad_dims.append(param.data.numel())
+        print("_____________ GRAD_DIMS SHAPE ________________ ", sum(grad_dims))
         grads = torch.Tensor(sum(grad_dims), self.n_tasks).to(self.device)
 
         for i in range(self.n_tasks):
