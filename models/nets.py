@@ -446,7 +446,7 @@ class LInEx(MetaModule):
         if nslots == -1:
             scores += self.mask
             if torch.any(torch.isnan(scores)):
-                print("Score 2 NaN")
+                print("_____Score 2 NaN_____")
                 raise ValueError
                 # print(scores[0])
                 # input()
@@ -481,7 +481,7 @@ class LInEx(MetaModule):
             else:
                 loss = self.crit(scores[valid], labels[valid])
                 if torch.isnan(loss):
-                    print("Loss 1 NaN")
+                    print("_____Loss 1 NaN_____")
                     raise ValueError
                     # print(labels, nslots, scores[:, :nslots])
                     # input()
@@ -565,7 +565,7 @@ class LInEx(MetaModule):
                 c_weight = (self.nslots - self.history["nslots"])
                 loss = (d_weight * loss_distill + c_weight * loss) / (d_weight + c_weight)
                 if torch.isnan(loss):
-                    print("Loss 2 NaN")
+                    print("_____Loss 2 NaN_____")
                     raise ValueError
                     # print(old_scores, new_scores)
                     # input()
@@ -619,7 +619,7 @@ class LInEx(MetaModule):
                     loss_exemplar += lambda_coef*self.compute_KL_bernoulli(self.input_map[2].log_alpha)*rate
                 loss_list.append(loss_exemplar)
                 if torch.isnan(loss_exemplar):
-                    print("Loss 3 NaN")
+                    print("____Loss 3 NaN____")
                     raise ValueError
                     # print(exemplar_labels, nslots)
                     # input()
@@ -1044,7 +1044,7 @@ class LInEx(MetaModule):
                 rnd = torch.randn_like(proto) * weight_norm / math.sqrt(self.classes.weight.size(1))
                 initvec = proto * gate + knowledge * gate + (1 - gate) * rnd
                 if torch.any(torch.isnan(initvec)):
-                    print("Initvec NaN")
+                    print("____Initvec NaN____")
                     raise ValueError
                     # print(proto, knowledge, rnd, gate, exemplar_weights[:, :1], exemplar_scores[-1, :self.nslots])
                     # input()
