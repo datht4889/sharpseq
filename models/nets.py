@@ -439,15 +439,20 @@ class LInEx(MetaModule):
         all_labels.append(labels)
         if torch.any(torch.isnan(scores)):
             print("Score 1 NaN")
-            raise ValueError
+            raise ValueError("Score 1 NaN")
             # print(scores[0])
             # print("input", inputs)
             # input('a')
         if nslots == -1:
             scores += self.mask
             if torch.any(torch.isnan(scores)):
+<<<<<<< Updated upstream
                 print("_____Score 2 NaN_____")
                 raise ValueError
+=======
+                print("Score 2 NaN")
+                raise ValueError("Score 2 NaN")
+>>>>>>> Stashed changes
                 # print(scores[0])
                 # input()
             nslots = self.nslots
@@ -481,8 +486,13 @@ class LInEx(MetaModule):
             else:
                 loss = self.crit(scores[valid], labels[valid])
                 if torch.isnan(loss):
+<<<<<<< Updated upstream
                     print("_____Loss 1 NaN_____")
                     raise ValueError
+=======
+                    print("Loss 1 NaN")
+                    raise ValueError("Loss 1 NaN")
+>>>>>>> Stashed changes
                     # print(labels, nslots, scores[:, :nslots])
                     # input()
             loss = 0
@@ -565,8 +575,13 @@ class LInEx(MetaModule):
                 c_weight = (self.nslots - self.history["nslots"])
                 loss = (d_weight * loss_distill + c_weight * loss) / (d_weight + c_weight)
                 if torch.isnan(loss):
+<<<<<<< Updated upstream
                     print("_____Loss 2 NaN_____")
                     raise ValueError
+=======
+                    print("Loss 2 NaN")
+                    raise ValueError("Loss 2 NaN")
+>>>>>>> Stashed changes
                     # print(old_scores, new_scores)
                     # input()
             if exemplar and self.exemplar_features is not None:
@@ -619,8 +634,13 @@ class LInEx(MetaModule):
                     loss_exemplar += lambda_coef*self.compute_KL_bernoulli(self.input_map[2].log_alpha)*rate
                 loss_list.append(loss_exemplar)
                 if torch.isnan(loss_exemplar):
+<<<<<<< Updated upstream
                     print("____Loss 3 NaN____")
                     raise ValueError
+=======
+                    print("Loss 3 NaN")
+                    raise ValueError("Loss 3 NaN")
+>>>>>>> Stashed changes
                     # print(exemplar_labels, nslots)
                     # input()
                 if exemplar_distill:
@@ -1044,8 +1064,13 @@ class LInEx(MetaModule):
                 rnd = torch.randn_like(proto) * weight_norm / math.sqrt(self.classes.weight.size(1))
                 initvec = proto * gate + knowledge * gate + (1 - gate) * rnd
                 if torch.any(torch.isnan(initvec)):
+<<<<<<< Updated upstream
                     print("____Initvec NaN____")
                     raise ValueError
+=======
+                    print("Initvec NaN")
+                    raise ValueError("Initvec NaN")
+>>>>>>> Stashed changes
                     # print(proto, knowledge, rnd, gate, exemplar_weights[:, :1], exemplar_scores[-1, :self.nslots])
                     # input()
                 label_inits.append((label, initvec.cpu()))
