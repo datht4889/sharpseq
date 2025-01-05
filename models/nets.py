@@ -435,6 +435,9 @@ class LInEx(MetaModule):
         inputs = self.input_map(features, params=self.get_subdict(params, "input_map"),
                                              return_all_layer=False)
         scores = self.classes(inputs, params=self.get_subdict(params, "classes"))
+        print("input_map: ", self.get_subdict(params, "input_map"))
+        print("classes: ", self.get_subdict(params, "classes"))
+        raise ValueError("Score 1 NaN")
         all_inputs.append(inputs)
         all_labels.append(labels)
         if torch.any(torch.isnan(scores)):
