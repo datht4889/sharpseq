@@ -441,6 +441,7 @@ class LInEx(MetaModule):
             print(scores[0])
             print("input: ", inputs)
             print("features: ", features)
+            print("params: ", params)
             print("input_map: ", self.get_subdict(params, "input_map"))
             print("classes: ", self.get_subdict(params, "classes"))
             raise ValueError("Score 1 NaN")

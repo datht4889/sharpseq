@@ -297,12 +297,15 @@ def main():
                 pass
 
             if (no_better == patience) or (worker.epoch == worker.train_epoch) or (opts.skip_first and loader_id == 0) or (opts.skip_second and loader_id == 1):
-                
+                print()
+                print("__________ NEXT LOADER ID ______")
+                print()
  
                 loader_id += 1
                 #model.id2task[0] = loader_id
                 no_better = 0
                 worker.load(model, optimizer, path=os.path.join(opts.log_dir, f"{worker.save_model}.{loader_id-1}"))
+                print(model.get_subdict(None, "classes"))
                 if not opts.finetune:
                     print("setting train exemplar for learned classes")
                     #model.set_clusters(exemplar_loaders[loader_id-1])
