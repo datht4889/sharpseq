@@ -439,7 +439,10 @@ class LInEx(MetaModule):
         all_labels.append(labels)
         if torch.any(torch.isnan(scores)):
             print(scores[0])
-            print("input", inputs)
+            print("input: ", inputs)
+            print("features: ", features)
+            print("input_namp: ", self.get_subdict(params, "input_map"))
+            print("input_namp: ", self.get_subdict(params, "classes"))
             raise ValueError("Score 1 NaN")
             # input('a')
         if nslots == -1:
