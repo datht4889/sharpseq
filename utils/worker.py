@@ -14,8 +14,8 @@ from utils.options import parse_arguments
 from .weight_methods import *
 from .sam import SAM
 opts = parse_arguments()
-if opts.mul_task_type == 'NashMTL':
-    from .weight_methods import NashMTL
+# if opts.mul_task_type == 'NashMTL':
+#     from .weight_methods import NashMTL
     
 weight_methods_parameters = {
     'imtl' : {},
