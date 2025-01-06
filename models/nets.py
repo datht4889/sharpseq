@@ -255,7 +255,7 @@ class LInEx(MetaModule):
     def __init__(self, input_dim: int, hidden_dim: int, max_slots: int, init_slots: int,dropout_type="adap", p:int=0.1, 
                  device: Union[torch.device, None] = None, **kwargs) -> None:
         super().__init__()
-
+        self.dcm = False
         if input_dim != hidden_dim:
             if dropout_type != "normal":
                 self.is_adap = True if dropout_type == "adap" else False
@@ -435,6 +435,12 @@ class LInEx(MetaModule):
         inputs = self.input_map(features, params=self.get_subdict(params, "input_map"),
                                              return_all_layer=False)
         scores = self.classes(inputs, params=self.get_subdict(params, "classes"))
+        if self.dcm:
+            print("params: ", params)
+            print("input_map: ", self.get_subdict(params, "input_map"))
+            print("classes: ", self.get_subdict(params, "classes"))
+            raise ValueError("Score 1 NaN")
+
         all_inputs.append(inputs)
         all_labels.append(labels)
         if torch.any(torch.isnan(scores)):
