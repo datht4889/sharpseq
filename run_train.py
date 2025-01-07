@@ -300,7 +300,6 @@ def main():
                 print()
                 print("__________ NEXT LOADER ID ______")
                 print()
-                model.dcm = True
  
                 loader_id += 1
                 #model.id2task[0] = loader_id
