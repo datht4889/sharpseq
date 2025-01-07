@@ -417,7 +417,7 @@ class ExcessMTL(WeightMethod):
         grads : torch.Tensor
             Matrix of gradients (n_tasks x n_parameters).
         """
-        grads = []
+        grads = {}
         for i in range(self.n_tasks):
             # grad = list(
             #     torch.autograd.grad(
@@ -437,8 +437,10 @@ class ExcessMTL(WeightMethod):
             ]
             grad_flat = torch.cat(grad)
             # grad_flat = torch.cat([torch.flatten(g) for g in grad])
+            if torch.isnan(grad_flat).any():
+                raise ValueError("GRAD VALUE NAN")
             grads.append(grad_flat)
-        return torch.stack(grads)
+        return torch.stack(tuple(v for v in grads.values()))
         
 
     def get_weighted_loss(
