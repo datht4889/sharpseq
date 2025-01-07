@@ -439,6 +439,8 @@ class LInEx(MetaModule):
         if self.dcm:
             print("scores: ", scores[0])
             print("input: ", inputs)
+            if torch.isnan(features).any():
+                raise ValueError("Features contain NaN value")
 
         all_inputs.append(inputs)
         all_labels.append(labels)
