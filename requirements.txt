@@ -1,6 +1,5 @@
 transformers
 torch
-torchmeta==1.8.0
 numpy
 tqdm==4.64.1
 scikit-learn
