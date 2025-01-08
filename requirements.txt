@@ -4,3 +4,4 @@ numpy
 tqdm==4.64.1
 scikit-learn
 cvxpy
+h5py
