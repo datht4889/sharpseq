@@ -439,7 +439,7 @@ class ExcessMTL(WeightMethod):
             # grad_flat = torch.cat([torch.flatten(g) for g in grad])
             if torch.isnan(grad_flat).any():
                 raise ValueError("GRAD VALUE NAN")
-            grads.append(grad_flat)
+            grads[i] = (grad_flat)
         return torch.stack(tuple(v for v in grads.values()))
         
 
