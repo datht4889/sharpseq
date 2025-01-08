@@ -419,17 +419,10 @@ class ExcessMTL(WeightMethod):
         """
         grads = {}
         for i in range(self.n_tasks):
-            # grad = list(
-            #     torch.autograd.grad(
-            #         # losses[i], parameters, retain_graph=True, create_graph=False, allow_unused=True
-            #         losses[i], parameters, retain_graph=True
-            #     )
-            # )
-
-            grad = torch.autograd.grad(
+            grad = list(torch.autograd.grad(
                     # losses[i], parameters, retain_graph=True, create_graph=False, allow_unused=True
                     losses[i], parameters, retain_graph=True
-                )
+                ))
 
             grad = [
                 g.flatten() if g is not None and not torch.isnan(g).any() else torch.zeros_like(p, device=self.device).flatten()
@@ -438,8 +431,8 @@ class ExcessMTL(WeightMethod):
             grad_flat = torch.cat(grad)
             # grad_flat = torch.cat([torch.flatten(g) for g in grad])
             if torch.isnan(grad_flat).any():
-                raise ValueError("GRAD VALUE NAN")
-            grads[i] = (grad_flat)
+                raise ValueError("Gradient value contains NaN.")
+            grads[i] = grad_flat
         return torch.stack(tuple(v for v in grads.values()))
         
 
@@ -474,6 +467,8 @@ class ExcessMTL(WeightMethod):
             self.grad_sum[i] += shared_grads[i] ** 2
             grad_i = shared_grads[i]
             h_i = torch.sqrt(self.grad_sum[i] + 1e-7)
+            if h_i.isnan().any():
+                raise ValueError("h_i contains NaN at line 469 weighted_methods.")
             w[i] = grad_i * (1 / h_i) @ grad_i.t()
 
         if self.first_epoch:
