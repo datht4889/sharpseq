@@ -22,7 +22,7 @@ sh sh/ace.sh
 ```
 
 ## Data folder
-Download data from https://drive.google.com/drive/folders/1tzoukeyDl2E3sYYu2neXg2Y7g2zcACD6?usp=sharing
+Download data from https://drive.google.com/drive/folders/10eQsBwqXSGkuh9pZ_X_6fQsKG_UDIaPH
 
 ## Requirements:
 - transformer == 4.23.1
