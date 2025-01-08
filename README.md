@@ -2,6 +2,11 @@
 Source code for the ACL Rolling Review submission LEDOT.
 
 
+## Library & Dependency
+```bash
+pip install -r requirements.txt
+```
+
 ## Data & Model Preparation
 
 We preprocess the data similar to [Lifelong Event Detection with Knowledge Transfer](https://aclanthology.org/2021.emnlp-main.428/) (Yu et al., EMNLP 2021), run the following commands to prepare data:
