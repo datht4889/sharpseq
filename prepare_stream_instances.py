@@ -64,10 +64,9 @@ def split_stream_instance(root, feature_root, streams, dataset_id):
     return stream_instances
 
 if __name__ == "__main__":
-    opts = parse_arguments()
     root="./data/"
     feature_root="./data/features"
     dataset_id = 0
-    streams = json.load(open(os.path.join(root, opts.datasetname, "streams.json")))
+    streams = json.load(open(os.path.join(root, "MAVEN", "streams.json")))
     instances = split_stream_instance(root, feature_root, streams, dataset_id)
-    json.dump(instances, open(os.path.join(root, opts.datasetname, "stream_instances.json"), "wt"), indent=4)
+    json.dump(instances, open(os.path.join(root, "MAVEN", "stream_instances.json"), "wt"), indent=4)
