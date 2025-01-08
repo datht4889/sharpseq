@@ -6,7 +6,6 @@ Source code for the ACL Rolling Review submission LEDOT.
 
 We preprocess the data similar to [Lifelong Event Detection with Knowledge Transfer](https://aclanthology.org/2021.emnlp-main.428/) (Yu et al., EMNLP 2021), run the following commands to prepare data:
 ```bash
-python prepare_inputs.py
 python prepare_stream_instances.py
 ```
 
@@ -16,6 +15,14 @@ To start training on MAVEN, run:
 ```bash
 sh sh/maven.sh
 ```
+
+To start training on ACE, run:
+```bash
+sh sh/ace.sh
+```
+
+## Data folder
+Download data from https://drive.google.com/drive/folders/1tzoukeyDl2E3sYYu2neXg2Y7g2zcACD6?usp=sharing
 
 ## Requirements:
 - transformer == 4.23.1
