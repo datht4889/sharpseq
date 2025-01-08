@@ -1,4 +1,4 @@
-# import argparse
+import argparse
 import os
 import glob
 
@@ -208,10 +208,10 @@ PERM = [[0, 1, 2, 3,4], [4, 3, 2, 1, 0], [0, 3, 1, 4, 2], [1, 2, 0, 3, 4], [3, 4
 
 import json
 def parse_arguments():
-    # parser = argparse.ArgumentParser()
-    # define_arguments(parser)
-    # args = parser.parse_args()
-    args = Config(train_epoch=20)
+    parser = argparse.ArgumentParser()
+    define_arguments(parser)
+    args = parser.parse_args()
+    # args = Config(train_epoch=20)
     args.log = os.path.join(args.log_dir, "logfile.log")
 
     if (not args.test_only) and os.path.exists(args.log_dir):
