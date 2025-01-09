@@ -579,7 +579,6 @@ class FAMO(WeightMethod):
         ----------
         losses :
         shared_parameters :
-        task_specific_parameters :
         last_shared_parameters : parameters of last shared layer/block
         Returns
         -------
@@ -590,30 +589,6 @@ class FAMO(WeightMethod):
         if self.max_norm > 0 and shared_parameters is not None:
             torch.nn.utils.clip_grad_norm_(shared_parameters, self.max_norm)
         return loss
-
-
-if __name__ == "__main__":
-
-    n   = 1000 # number of datapoints
-    dim = 20   # dimension of data
-    K   = 100  # number of tasks
-    X = torch.randn(n, dim)
-    Y = torch.randn(n, K)
-
-    model = torch.nn.Linear(dim, K)
-    weight_opt = FAMO(n_tasks=K, device="cpu")
-    opt = torch.optim.Adam(model.parameters())
-
-    for it in range(100):
-        loss = (Y - model(X)).pow(2).mean(0) # (K,)
-        opt.zero_grad()
-        weight_opt.backward(loss)
-        opt.step()
-        # update the task weighting
-        with torch.no_grad():
-            new_loss = (Y - model(X)).pow(2).mean(0) # (K,)
-            weight_opt.update(new_loss)
-        print(f"[info] iter {it:3d} | avg loss {loss.mean().item():.4f}")
 
 
 class LinearScalarization(WeightMethod):
