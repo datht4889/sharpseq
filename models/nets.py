@@ -445,6 +445,7 @@ class LInEx(MetaModule):
         all_inputs.append(inputs)
         all_labels.append(labels)
         if torch.any(torch.isnan(scores)):
+            print("-------- CLIP GRADIENT ---------")
             print("scores: ", scores[0])
             print("input: ", inputs)
             print("features: ", features)
