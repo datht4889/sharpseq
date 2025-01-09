@@ -453,9 +453,6 @@ class ExcessMTL(WeightMethod):
         shared_parameters: Union[
             List[torch.nn.Parameter], torch.Tensor
         ] = None,
-        task_specific_parameters: Union[
-            List[torch.nn.Parameter], torch.Tensor
-        ] = None,
         **kwargs,
     ):
         # Compute gradients
@@ -508,13 +505,6 @@ class ExcessMTL(WeightMethod):
         shared_parameters: Union[
             List[torch.nn.parameter.Parameter], torch.Tensor
         ] = None,
-        task_specific_parameters: Union[
-            List[torch.nn.parameter.Parameter], torch.Tensor
-        ] = None,
-        last_shared_parameters: Union[
-            List[torch.nn.parameter.Parameter], torch.Tensor
-        ] = None,
-        representation: Union[List[torch.nn.parameter.Parameter], torch.Tensor] = None,
         **kwargs,
     ) -> Tuple[Union[torch.Tensor, None], Union[Dict, None]]:
         #mags = [abs(i.item())+1e-8 for i in losses]
