@@ -436,11 +436,11 @@ class LInEx(MetaModule):
                                              return_all_layer=False)
         scores = self.classes(inputs, params=self.get_subdict(params, "classes"))
 
-        if self.dcm:
-            print("scores: ", scores[0])
-            print("input: ", inputs)
-            if torch.isnan(features).any():
-                raise ValueError("Features contain NaN value")
+        # if self.dcm:
+        #     print("scores: ", scores[0])
+        #     print("input: ", inputs)
+        if torch.isnan(features).any():
+            raise ValueError("Features contain NaN value")
 
         all_inputs.append(inputs)
         all_labels.append(labels)

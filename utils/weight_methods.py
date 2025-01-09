@@ -394,8 +394,19 @@ class ExcessMTL(WeightMethod):
 
     """
 
-    def __init__(self, n_tasks: int, device: torch.device, **kwargs):
-        super().__init__(n_tasks=n_tasks, device=device)
+    def __init__(
+            self, 
+            n_tasks: int, 
+            device: torch.device, 
+            max_norm: float = 1.0,
+            **kwargs):
+        
+        super().__init__(
+            n_tasks=n_tasks, 
+            device=device)
+        
+        self.max_norm = max_norm
+        
         self.loss_weight = torch.ones(n_tasks, device=device, requires_grad=False)
         self.grad_sum = None
         self.first_epoch = True
@@ -490,6 +501,36 @@ class ExcessMTL(WeightMethod):
             print("ExcessMTL failed")
             print(losses)
             return None
+        
+    def backward(
+        self,
+        losses: torch.Tensor,
+        shared_parameters: Union[
+            List[torch.nn.parameter.Parameter], torch.Tensor
+        ] = None,
+        task_specific_parameters: Union[
+            List[torch.nn.parameter.Parameter], torch.Tensor
+        ] = None,
+        last_shared_parameters: Union[
+            List[torch.nn.parameter.Parameter], torch.Tensor
+        ] = None,
+        representation: Union[List[torch.nn.parameter.Parameter], torch.Tensor] = None,
+        **kwargs,
+    ) -> Tuple[Union[torch.Tensor, None], Union[Dict, None]]:
+        #mags = [abs(i.item())+1e-8 for i in losses]
+        #losses = [i/mags[idx] for idx, i in enumerate(losses)]
+        loss, extra_outputs = self.get_weighted_loss(
+            losses=losses,
+            shared_parameters=shared_parameters,
+            **kwargs,
+        )
+        loss.backward()
+
+        # make sure the solution for shared params has norm <= self.eps
+        if self.max_norm > 0:
+            torch.nn.utils.clip_grad_norm_(shared_parameters, self.max_norm)
+
+        return loss, extra_outputs
 
 
 
