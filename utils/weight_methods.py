@@ -476,7 +476,7 @@ class ExcessMTL(WeightMethod):
             grad_i = shared_grads[i]
             h_i = torch.sqrt(self.grad_sum[i] + 1e-7)
             if h_i.isnan().any():
-                raise ValueError("h_i contains NaN at line 469 weighted_methods.")
+                raise ValueError("h_i contains NaN in weighted_methods.py")
             w[i] = grad_i * (1 / h_i) @ grad_i.t()
 
         if self.first_epoch:
@@ -513,10 +513,12 @@ class ExcessMTL(WeightMethod):
             shared_parameters=shared_parameters,
             **kwargs,
         )
+        print("-------- BACKWARD ---------")
         loss.backward()
 
         # make sure the solution for shared params has norm <= self.eps
         if self.max_norm > 0:
+            print("-------- CLIP GRADIENT ---------")
             torch.nn.utils.clip_grad_norm_(shared_parameters, self.max_norm)
 
         return loss, extra_outputs
