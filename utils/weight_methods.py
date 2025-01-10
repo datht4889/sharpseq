@@ -553,7 +553,7 @@ class FAMO(WeightMethod):
     def get_weighted_loss(self, losses):
         self.prev_loss = losses
         z = F.softmax(self.w, -1)
-        D = torch.tensor(losses) - torch.tensor(self.min_losses) + 1e-8
+        D = torch.tensor(losses).to(self.device) - torch.tensor(self.min_losses).to(self.device) + 1e-8
         c = (z / D).sum().detach()
         loss = (D.log() * z / c).sum()
         return loss
