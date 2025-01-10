@@ -516,13 +516,11 @@ class ExcessMTL(WeightMethod):
             shared_parameters=shared_parameters,
             **kwargs,
         )
-        print("-------- BACKWARD ---------")
         loss.backward()
 
         # make sure the solution for shared params has norm <= self.eps
         if self.max_norm > 0:
-            print("-------- CLIP GRADIENT ---------")
-            torch.nn.utils.clip_grad_norm_(shared_parameters, self.max_norm)
+            torch.nn.utils.clip_grad_norm_(shared_parameters, self.max_norm, error_if_nonfinite=True)
 
         return loss, extra_outputs
 
