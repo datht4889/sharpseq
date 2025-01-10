@@ -128,7 +128,7 @@ def main():
         "weight_decay": opts.decay,
         "betas": (0.9, 0.999)}
         ]
-    optimizer = AdamW(params=param_groups)
+    optimizer = AdamW(params=param_groups, lr=5e-4)
     optimizer_correction = None
     if opts.balance == "bic":
         correction_param_groups = [
