@@ -474,7 +474,7 @@ class ExcessMTL(WeightMethod):
         for i in range(self.n_tasks):
             self.grad_sum[i] += shared_grads[i] ** 2
             grad_i = shared_grads[i]
-            h_i = torch.sqrt(self.grad_sum[i] + 1e-7)
+            h_i = torch.sqrt(self.grad_sum[i] + 1e-4)
             if h_i.isnan().any():
                 raise ValueError("h_i contains NaN in weighted_methods.py")
             w[i] = grad_i * (1 / h_i) @ grad_i.t()
