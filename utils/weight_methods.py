@@ -431,8 +431,10 @@ class ExcessMTL(WeightMethod):
         grads = {}
         for i in range(self.n_tasks):
             grad = list(torch.autograd.grad(
-                    # losses[i], parameters, retain_graph=True, create_graph=False, allow_unused=True
-                    losses[i], parameters, retain_graph=True
+                    losses[i], 
+                    parameters, 
+                    retain_graph=True,
+                    allow_unused=True
                 ))
 
             grad = [
@@ -520,7 +522,10 @@ class ExcessMTL(WeightMethod):
 
         # make sure the solution for shared params has norm <= self.eps
         if self.max_norm > 0:
-            torch.nn.utils.clip_grad_norm_(shared_parameters, self.max_norm, error_if_nonfinite=True)
+            torch.nn.utils.clip_grad_norm_(shared_parameters, 
+                                           self.max_norm, 
+                                        #    error_if_nonfinite=True
+                                           )
 
         return loss, extra_outputs
 
