@@ -486,6 +486,8 @@ class ExcessMTL(WeightMethod):
             self.first_epoch = False
         else:
             w = w / self.initial_w
+            if w.isnan().any():
+                raise ValueError("w contains NaN in weighted_methods.py")
             self.loss_weight = self.loss_weight * torch.exp(w * self.robust_step_size)
             self.loss_weight = self.loss_weight / self.loss_weight.sum() * self.n_tasks
             self.loss_weight = self.loss_weight.detach().clone()
