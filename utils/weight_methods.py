@@ -553,7 +553,13 @@ class FAMO(WeightMethod):
     def get_weighted_loss(self, losses):
         self.prev_loss = losses
         z = F.softmax(self.w, -1)
-        D = torch.stack(losses).to(self.device) - self.min_losses + 1e-8
+        try:
+            if isinstance(losses, torch.Tensor):
+                losses = [losses]
+            D = torch.stack(losses).to(self.device) - self.min_losses + 1e-8
+        except:
+            print(type(losses), losses)
+            raise TypeError("Error at stack losses")
         c = (z / D).sum().detach()
         loss = (D.log() * z / c).sum()
         return loss
