@@ -524,7 +524,7 @@ class ExcessMTL(WeightMethod):
         if self.max_norm > 0:
             torch.nn.utils.clip_grad_norm_(shared_parameters, 
                                            self.max_norm, 
-                                        #    error_if_nonfinite=True
+                                           error_if_nonfinite=True
                                            )
 
         return loss, extra_outputs
