@@ -291,9 +291,13 @@ class Worker(object):
                             if opts.mul_task_type == 'IMTLG' or  opts.mul_task_type == 'PCGrad' or opts.mul_task_type == 'MGDA':
                                 loss = torch.stack(loss) * 1.0
 
-                            loss, alpha = self.mul_loss(losses=loss, shared_parameters=parameters)
-                            if opts.mul_task_type == 'FAMO':
-                                self.mul_loss.update(f_loss(batch))
+                            try:
+                                loss, alpha = self.mul_loss(losses=loss, shared_parameters=parameters)
+                                if opts.mul_task_type == 'FAMO':
+                                    self.mul_loss.update(f_loss(batch))
+                            except:
+                                print(type(loss), loss)
+                                raise TypeError("Type Error Loss")
 
                             ## change ###
                             # scaling_strategy = 'linear'  # ['linear', 'exponential', 'sigmoid', 'piecewise']
