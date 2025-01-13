@@ -552,16 +552,15 @@ class FAMO(WeightMethod):
 
     def get_weighted_loss(self, losses):
         self.prev_loss = losses
+        print("-------- FAMO 1 --------")
         z = F.softmax(self.w, -1)
-        try:
-            if isinstance(losses, torch.Tensor):
-                losses = [losses]
-            D = torch.stack(losses).to(self.device) - self.min_losses + 1e-8
-        except:
-            print(type(losses), losses)
-            raise TypeError("Error at stack losses")
+        print("-------- FAMO 2 --------")
+        D = torch.stack(losses) - self.min_losses + 1e-8
+        print("-------- FAMO 3 --------")
         c = (z / D).sum().detach()
+        print("-------- FAMO 4 --------")
         loss = (D.log() * z / c).sum()
+        print("-------- FAMO 5 --------")
         return loss
 
     def update(self, curr_loss):
@@ -596,6 +595,7 @@ class FAMO(WeightMethod):
         -------
         Loss, extra outputs
         """
+        print("-------- FAMO BACKWARD --------")
         loss = self.get_weighted_loss(losses=losses)
         loss.backward()
         if self.max_norm > 0 and shared_parameters is not None:
