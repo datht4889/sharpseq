@@ -592,8 +592,11 @@ class FAMO(WeightMethod):
         """
         loss = self.get_weighted_loss(losses=losses)
         loss.backward()
+        print("------- BACKWARDED -------")
         if self.max_norm > 0:
+            print('------- CLIP GRAD -------')
             torch.nn.utils.clip_grad_norm_(shared_parameters, self.max_norm)
+            print('------- GRAD CLIPPED -------')
         return loss
 
 
