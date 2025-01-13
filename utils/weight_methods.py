@@ -551,12 +551,14 @@ class FAMO(WeightMethod):
         self.min_losses = losses
 
     def get_weighted_loss(self, losses):
+        extra_outputs = dict()
         self.prev_loss = losses
         z = F.softmax(self.w, -1)
         D = torch.stack(losses) - self.min_losses + 1e-8
         c = (z / D).sum().detach()
         loss = (D.log() * z / c).sum()
-        return loss
+        extra_outputs["weights"] = c
+        return loss, extra_outputs
 
     def update(self, curr_loss):
         delta = (self.prev_loss - self.min_losses + 1e-8).log() - \
@@ -590,14 +592,14 @@ class FAMO(WeightMethod):
         -------
         Loss, extra outputs
         """
-        loss = self.get_weighted_loss(losses=losses)
+        loss, extra_outputs = self.get_weighted_loss(losses=losses)
         loss.backward()
         print("------- BACKWARDED -------")
         if self.max_norm > 0:
             print('------- CLIP GRAD -------')
             torch.nn.utils.clip_grad_norm_(shared_parameters, self.max_norm)
             print('------- GRAD CLIPPED -------')
-        return loss
+        return loss, extra_outputs
 
 
 class LinearScalarization(WeightMethod):
