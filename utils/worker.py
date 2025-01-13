@@ -292,9 +292,11 @@ class Worker(object):
                                 loss = torch.stack(loss) * 1.0
 
                             try:
-                                loss, alpha = self.mul_loss(losses=loss, shared_parameters=parameters)
                                 if opts.mul_task_type == 'FAMO':
+                                    loss, alpha = self.mul_loss(losses=torch.stack(loss), shared_parameters=parameters)
                                     self.mul_loss.update(f_loss(batch))
+                                else: 
+                                    loss, alpha = self.mul_loss(losses=loss, shared_parameters=parameters)
                             except:
                                 print(type(loss), loss)
                                 raise TypeError("Type Error Loss")
