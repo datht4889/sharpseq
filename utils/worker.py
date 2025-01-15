@@ -291,9 +291,10 @@ class Worker(object):
                             if opts.mul_task_type == 'IMTLG' or  opts.mul_task_type == 'PCGrad' or opts.mul_task_type == 'MGDA':
                                 loss = torch.stack(loss) * 1.0
 
-                            print(type(loss), loss)
                             loss, alpha = self.mul_loss(losses=loss, shared_parameters=parameters)
-                                
+                            if opts.mul_task_type == 'FAMO':
+                                with torch.no_grad():
+                                    self.mul_loss.update(f_loss(batch))
 
                             ## change ###
                             # scaling_strategy = 'linear'  # ['linear', 'exponential', 'sigmoid', 'piecewise']
@@ -357,8 +358,6 @@ class Worker(object):
                 if scheduler:
                     scheduler.step()
                 
-                if opts.mul_task_type == 'FAMO':
-                    self.mul_loss.update(f_loss(batch))
             else:
                 with torch.no_grad():
                     loss  = f_loss(batch)
