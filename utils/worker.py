@@ -293,8 +293,6 @@ class Worker(object):
 
                             print(type(loss), loss)
                             loss, alpha = self.mul_loss(losses=loss, shared_parameters=parameters)
-                            if opts.mul_task_type == 'FAMO':
-                                self.mul_loss.update(f_loss(batch))
                                 
 
                             ## change ###
@@ -358,6 +356,9 @@ class Worker(object):
                     optimizer.zero_grad()
                 if scheduler:
                     scheduler.step()
+                
+                if opts.mul_task_type == 'FAMO':
+                    self.mul_loss.update(f_loss(batch))
             else:
                 with torch.no_grad():
                     loss  = f_loss(batch)
