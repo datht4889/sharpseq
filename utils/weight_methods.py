@@ -544,7 +544,7 @@ class FAMO(WeightMethod):
                 
         self.min_losses = torch.zeros(n_tasks).to(device)
         self.w = torch.tensor([0.0] * n_tasks, device=device, requires_grad=True)
-        self.w_opt = torch.optim.AdamW([self.w], lr=w_lr, weight_decay=gamma)
+        self.w_opt = torch.optim.Adam([self.w], lr=w_lr, weight_decay=gamma)
         self.max_norm = max_norm
     
     def set_min_losses(self, losses):
