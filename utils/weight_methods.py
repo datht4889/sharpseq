@@ -582,14 +582,13 @@ class FAMO(WeightMethod):
         ] = None,
     ) -> Union[torch.Tensor, None]:
         """
-
         Parameters
         ----------
         losses :
         shared_parameters :
         last_shared_parameters : parameters of last shared layer/block
         Returns
-        -------
+        ----------
         Loss, extra outputs
         """
         loss, extra_outputs = self.get_weighted_loss(losses=losses)
