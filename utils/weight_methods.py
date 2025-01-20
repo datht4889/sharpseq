@@ -535,7 +535,7 @@ class FAMO(WeightMethod):
         n_tasks: int,
         device: torch.device,
         gamma: float = 0.01,   # the regularization coefficient
-        w_lr: float = 0.025,   # the learning rate of the task logits
+        w_lr: float = 0.001,   # the learning rate of the task logits
         max_norm: float = 1.0, # the maximum gradient norm
     ):
         super().__init__(
