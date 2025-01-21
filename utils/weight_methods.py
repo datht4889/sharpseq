@@ -484,7 +484,7 @@ class ExcessMTL(WeightMethod):
             self.initial_w = w
             self.first_epoch = False
         else:
-            w = w / (self.initial_w + 1e-7)
+            w = w / (self.initial_w + 1e-4)
 
             print("___________________1", self.loss_weight, self.loss_weight.sum(), torch.exp(w * self.robust_step_size), self.n_tasks)
 
