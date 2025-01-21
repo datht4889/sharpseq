@@ -552,7 +552,7 @@ class FAMO(WeightMethod):
 
     def get_weighted_loss(self, losses):
         extra_outputs = dict()
-        self.prev_loss = losses
+        self.prev_loss = torch.stack(losses)
         z = F.softmax(self.w, -1)
         D = torch.stack(losses) - self.min_losses + 1e-8
         c = (z / D).sum().detach()
