@@ -529,6 +529,7 @@ class ExcessMTL(WeightMethod):
 class FAMO(WeightMethod):
     """
     Fast Adaptive Multitask Optimization.
+    https://github.com/Cranial-XIX/FAMO/blob/main/famo.py
     """
     def __init__(
         self,
