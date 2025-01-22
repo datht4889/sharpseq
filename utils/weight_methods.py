@@ -485,18 +485,12 @@ class ExcessMTL(WeightMethod):
             self.first_epoch = False
         else:
             w = w / (self.initial_w + 1e-4)
-
-            print("___________________1", self.loss_weight, self.loss_weight.sum(), torch.exp(w * self.robust_step_size), self.n_tasks)
-
             self.loss_weight = self.loss_weight * torch.exp(w * self.robust_step_size)
-
-            print("___________________2", self.loss_weight, self.loss_weight.sum(), torch.exp(w * self.robust_step_size), self.n_tasks)
-            
             self.loss_weight = self.loss_weight / self.loss_weight.sum() * self.n_tasks
             if self.loss_weight.isnan().any():
                 print("Loss weight: ", self.loss_weight)
                 print("Loss weight sum: ", self.loss_weight.sum())
-                raise ValueError("loss_weight 3 contains NaN in weighted_methods.py")
+                raise ValueError("loss_weight contains NaN in weighted_methods.py")
             self.loss_weight = self.loss_weight.detach().clone()
 
         # Compute weighted loss
