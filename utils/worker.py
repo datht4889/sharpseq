@@ -291,6 +291,10 @@ class Worker(object):
                             if opts.mul_task_type == 'IMTLG' or  opts.mul_task_type == 'PCGrad' or opts.mul_task_type == 'MGDA':
                                 loss = torch.stack(loss) * 1.0
 
+                            if opts.mul_task_type == 'FAMO':
+                                with torch.no_grad():
+                                    self.mul_loss.update(f_loss(batch))
+
                             loss, alpha = self.mul_loss(losses=loss, shared_parameters=parameters)
 
                             ## change ###
@@ -327,9 +331,6 @@ class Worker(object):
                             # loss, alpha = self.mul_loss(losses=new_loss, shared_parameters=parameters)
                             #############
 
-                            if opts.mul_task_type == 'FAMO':
-                                with torch.no_grad():
-                                    self.mul_loss.update(f_loss(batch))
 
 
                         except Exception as e:
