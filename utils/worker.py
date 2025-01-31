@@ -275,7 +275,8 @@ class Worker(object):
                                     self.mul_loss = ExcessMTL(n_tasks=len(loss), device=self.device)
 
                                 if opts.mul_task_type == 'FAMO':
-                                    self.mul_loss = FAMO(n_tasks=len(loss), device=self.device)
+                                    if not isinstance(self.mul_loss, FAMO):
+                                        self.mul_loss = FAMO(n_tasks=len(loss), device=self.device)
 
                             if opts.mul_task_type == 'IMTLG' or  opts.mul_task_type == 'PCGrad' or opts.mul_task_type == 'MGDA':
                                 loss = torch.stack(loss) * 1.0
@@ -291,9 +292,6 @@ class Worker(object):
                             if opts.mul_task_type == 'IMTLG' or  opts.mul_task_type == 'PCGrad' or opts.mul_task_type == 'MGDA':
                                 loss = torch.stack(loss) * 1.0
 
-                            if opts.mul_task_type == 'FAMO':
-                                with torch.no_grad():
-                                    self.mul_loss.update(f_loss(batch))
 
                             loss, alpha = self.mul_loss(losses=loss, shared_parameters=parameters)
 
@@ -330,6 +328,10 @@ class Worker(object):
                             # new_loss = [w * l for w, l in zip(weights, loss)]
                             # loss, alpha = self.mul_loss(losses=new_loss, shared_parameters=parameters)
                             #############
+
+                            if opts.mul_task_type == 'FAMO':
+                                with torch.no_grad():
+                                    self.mul_loss.update(f_loss(batch))
 
 
 
