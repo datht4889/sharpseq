@@ -276,6 +276,7 @@ class Worker(object):
 
                                 if opts.mul_task_type == 'FAMO':
                                     if not isinstance(self.mul_loss, FAMO):
+                                        print("_______FAMO______", isinstance(self.mul_loss, FAMO))
                                         self.mul_loss = FAMO(n_tasks=len(loss), device=self.device)
 
                             if opts.mul_task_type == 'IMTLG' or  opts.mul_task_type == 'PCGrad' or opts.mul_task_type == 'MGDA':
