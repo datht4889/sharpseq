@@ -82,7 +82,7 @@ class Config:
         input_dim=2048,
         hidden_dim=512,
         max_slots=34,
-        perm_id=3,
+        perm_id=0,
         no_gpu=False,
         gpu=0,
         learning_rate=1e-4,
