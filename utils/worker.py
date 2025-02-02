@@ -120,6 +120,7 @@ class Worker(object):
         self.num_loss = opts.num_loss
         self.mul_task = opts.mul_task
         self.sam = opts.num_sam_loss
+        self.use_famo = False
     
     @classmethod
     def from_options(cls, train_epoch:int, no_gpu:bool, gpu:int, save_model:str, load_model:str, log:str):
@@ -156,7 +157,8 @@ class Worker(object):
             f_loss = model.forward
         if split == "train":
             model.train()
-            self.mul_loss=None
+            if not self.use_famo:
+                self.mul_loss=None
             self.epoch += 1
             if self.epoch == 1:
                 plabels = 0
@@ -228,7 +230,6 @@ class Worker(object):
                                     n_tasks=len(loss),
                                 )
                             
-                            
                             if opts.mul_task_type == 'MGDA':
                                 self.mul_loss = MGDA(
                                     device=self.device,
@@ -245,9 +246,8 @@ class Worker(object):
                                 self.mul_loss = ExcessMTL(n_tasks=len(loss), device=self.device)
 
                             if opts.mul_task_type == 'FAMO':
-                                if not isinstance(self.mul_loss, FAMO):
-                                    print("_______FAMO______", isinstance(self.mul_loss, FAMO))
-                                    self.mul_loss = FAMO(n_tasks=len(loss), device=self.device)
+                                self.mul_loss = FAMO(n_tasks=len(loss), device=self.device)
+                                self.use_famo = True
 
                         try:
                             if self.mul_loss.n_tasks != len(loss):
@@ -277,9 +277,8 @@ class Worker(object):
                                     self.mul_loss = ExcessMTL(n_tasks=len(loss), device=self.device)
 
                                 if opts.mul_task_type == 'FAMO':
-                                    if not isinstance(self.mul_loss, FAMO):
-                                        print("_______FAMO______", isinstance(self.mul_loss, FAMO))
-                                        self.mul_loss = FAMO(n_tasks=len(loss), device=self.device)
+                                    self.mul_loss = FAMO(n_tasks=len(loss), device=self.device)
+                                    self.use_famo = True
 
                             if opts.mul_task_type == 'IMTLG' or  opts.mul_task_type == 'PCGrad' or opts.mul_task_type == 'MGDA':
                                 loss = torch.stack(loss) * 1.0
