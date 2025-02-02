@@ -410,7 +410,7 @@ class ExcessMTL(WeightMethod):
         self.grad_sum = None
         self.first_epoch = True
         self.kwargs = kwargs
-        self.robust_step_size = kwargs.get("robust_step_size", 0.001)
+        self.robust_step_size = kwargs.get("robust_step_size", 1e-4)
         self.rep_grad = kwargs.get("rep_grad", False)
 
     def _compute_grad(self, losses: torch.Tensor, parameters: List[torch.nn.parameter.Parameter]):
