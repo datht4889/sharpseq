@@ -246,6 +246,7 @@ class Worker(object):
                                 self.mul_loss = ExcessMTL(n_tasks=len(loss), device=self.device)
 
                             if opts.mul_task_type == 'FAMO':
+                                print("____FAMO_____", self.use_famo)
                                 self.mul_loss = FAMO(n_tasks=len(loss), device=self.device)
                                 self.use_famo = True
 
@@ -277,6 +278,7 @@ class Worker(object):
                                     self.mul_loss = ExcessMTL(n_tasks=len(loss), device=self.device)
 
                                 if opts.mul_task_type == 'FAMO':
+                                    print("____FAMO_____", self.use_famo)
                                     self.mul_loss = FAMO(n_tasks=len(loss), device=self.device)
                                     self.use_famo = True
 
