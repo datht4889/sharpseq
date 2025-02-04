@@ -540,7 +540,7 @@ class FAMO(WeightMethod):
         self,
         n_tasks: int,
         device: torch.device,
-        gamma: float = 0.01,   # the regularization coefficient
+        gamma: float = 1e-5,   # the regularization coefficient
         w_lr: float = 0.001,   # the learning rate of the task logits
         max_norm: float = 1.0, # the maximum gradient norm
     ):
@@ -557,18 +557,17 @@ class FAMO(WeightMethod):
         self.min_losses = losses
 
     def get_weighted_loss(self, losses):
-        extra_outputs = dict()
         self.prev_loss = torch.stack(losses)
         z = F.softmax(self.w, -1)
         D = torch.stack(losses) - self.min_losses + 1e-8
         c = (z / D).sum().detach()
         loss = (D.log() * z / c).sum()
-        extra_outputs["weights"] = c
+        extra_outputs = {"weights": z, "logits": self.w.detach().clone()}
         return loss, extra_outputs
 
     def update(self, curr_loss):
-        delta = (self.prev_loss - self.min_losses + 1e-8).log() - \
-                (torch.stack(curr_loss)      - self.min_losses + 1e-8).log()
+        delta = (self.prev_loss             - self.min_losses + 1e-8).log() - \
+                (torch.stack(curr_loss)     - self.min_losses + 1e-8).log()
         with torch.enable_grad():
             d = torch.autograd.grad(F.softmax(self.w, -1),
                                     self.w,
